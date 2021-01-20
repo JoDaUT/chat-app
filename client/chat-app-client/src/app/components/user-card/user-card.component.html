@@ -1,10 +1,14 @@
-<mat-card class="user-card">
+<mat-card class="user-card" (click)="userCardClicked()">
     <mat-card-header>
-        <div>
-            <img mat-card-avatar src="{{avatar}}" class="avatar">
+        <div mat-card-avatar *ngIf="avatar">
+            <img mat-card-avatar src="{{avatar}}"  >
             <div *ngIf="status==='online' || status==='offline'" class="badge"  [ngClass]="{'online': status==='online', 'offline': status==='offline'}"></div>
         </div>
-        <mat-card-title>{{title}}</mat-card-title>
-        <mat-card-subtitle>{{subtitle}}</mat-card-subtitle>
+        <div mat-card-avatar *ngIf="!avatar">
+            <img mat-card-avatar src="../../../assets/icons/default-avatar.svg"  >
+            <div *ngIf="status==='online' || status==='offline'" class="badge"  [ngClass]="{'online': status==='online', 'offline': status==='offline'}"></div>
+        </div>
+        <mat-card-title>{{parsedTitle}}</mat-card-title>
+        <mat-card-subtitle>{{parsedSubtitle}}</mat-card-subtitle>
     </mat-card-header>
 </mat-card>

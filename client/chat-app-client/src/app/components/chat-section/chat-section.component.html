@@ -1,0 +1,42 @@
+<section class="chat-section-contaner">
+    <!--contact info-->
+    <div class="contact-info">
+        <div>
+            <user-card [title]="contact.title" [subtitle]="contact.subtitle" [avatar]="contact.avatar"></user-card>
+        </div>
+        <div class="icon-container">
+            <button mat-icon-button class="icon">
+                <mat-icon>videocam</mat-icon>
+            </button>
+            <button mat-icon-button class="icon">
+                <mat-icon>call</mat-icon>
+            </button>
+        </div>
+    </div>
+    <!--messages-section-->
+    <div class="messages-section scroll" #messageSection>
+        <div *ngFor="let message of messages">
+            <chat-bubble [content]="message.content" [date]="message.date" [type]="message.type"
+                [avatar]="contact.avatar"></chat-bubble>
+        </div>
+    </div>
+    <!--new message section-->
+    <div class="new-message-section">
+        <form action="" class="new-message-form" #sendMessageForm="ngForm">
+            <button class="emoji-picker item1" mat-icon-button (click)="toggled = !toggled" [(emojiPickerIf)]="toggled"
+                [emojiPickerDirection]="'bottom' || 'top' || 'left' || 'right'"
+                (emojiPickerSelect)="handleSelection($event)">
+                <mat-icon>sentiment_satisfied_alt</mat-icon>
+            </button>
+            <div class="item2">
+                <textarea type="text" placeholder="Escribe un mensaje" required class="new-message-textarea" 
+                [(ngModel)]="messageToSend" [ngModelOptions]="{standalone: true}" (keyup.enter)="handleSubmit(sendMessageForm)"></textarea>
+            </div>
+            <div class="item3">
+                <button mat-icon-button class="send-button" (click)="handleSubmit(sendMessageForm)">
+                    <mat-icon>send</mat-icon>
+                </button>
+            </div>
+        </form>
+    </div>
+</section>

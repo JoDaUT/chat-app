@@ -1,0 +1,14 @@
+.example-spacer {
+    flex: 1 1 auto;
+  }
+  img{
+      margin-right: 10px;
+  }
+  .toolbar{
+      background-color:var(--primary);
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+  }
+  .toolbar > span, mat-icon{
+      color: white;
+  }

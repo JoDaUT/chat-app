@@ -1,4 +1,14 @@
-<user-card [title]="userCard.title" [subtitle]="userCard.subtitle" [avatar]="userCard.avatar" [status]="userCard.status"></user-card>
-<user-card [title]="userCard.title" [subtitle]="userCard.subtitle" [avatar]="userCard.avatar" [status]="userCard.status"></user-card>
-<user-card [title]="userCard.title" [subtitle]="userCard.subtitle" [avatar]="userCard.avatar" [status]="userCard.status"></user-card>
-<user-card [title]="userCard.title" [subtitle]="userCard.subtitle" [avatar]="userCard.avatar" [status]="userCard.status"></user-card>
+<section class="sidebar-container">
+    <div class="search-container">
+        <form class="search-form" #searchForm="ngForm" (ngSubmit)="onSubmit(searchForm)">
+            <input type="text" placeholder="Buscar usuario" class="search-input">
+            <mat-icon class="search-button">search</mat-icon>
+        </form>
+    </div>
+    <div class="inbox-container" *ngIf="contactsInfo">
+        <span class="inbox" *ngFor="let contact of contactsInfo">
+            <user-card [title]="contact.title" [subtitle]="contact.subtitle" [status]="contact.status"
+                [avatar]="contact.avatar"></user-card>
+        </span>
+    </div>
+</section>

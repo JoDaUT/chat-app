@@ -1,0 +1,14 @@
+<div class="message-container" [ngClass]="{'message-container-left': type===0, 'message-container-right': type===1}">
+    <div *ngIf="type===0">
+        <img mat-card-avatar src="{{avatar}}" class="avatar">
+    </div>
+    <div class="bubble" [ngClass]="{'bubble-left': type===0, 'bubble-right': type===1}">
+        <p class="content">
+            {{content}}
+        </p>
+        <span class="date">{{date | date:'shortTime'}}</span>
+    </div>
+    <div *ngIf="type===1">
+        <img mat-card-avatar src="{{avatar}}" class="avatar">
+    </div>
+</div>

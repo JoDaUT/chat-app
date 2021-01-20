@@ -1,4 +1,38 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+:root{
+    --primary: #5913a9;
+    --secondary: #eab1ff;
+    --terciary: #eaeaea;
+    --font1: #636363;
+    --font2: #a0a0a0;
+    --warn: #ee3939;
+    --font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+*{
+    margin:0;
+    padding:0;
+}
+body { height: 90vh; }
+body { margin: 0; font-family: var(--font-family); background-color: var(--terciary);}
+
+
+/* width */
+::-webkit-scrollbar {
+    width: 5px;
+}
+  
+/* Track */
+::-webkit-scrollbar-track {
+background: var(--terciary);
+}
+  
+/* Handle */
+::-webkit-scrollbar-thumb {
+background: var(--font2);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+background: var(--font1);
+}

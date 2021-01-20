@@ -1,14 +1,35 @@
 .user-card{
-    max-width: 400px;
+    min-width: 240px;
+    max-width: 600px;
     box-shadow: none;
-    width:200px;
+    /* width: 230px; */
     height:30px;
+    color: var(--font1);
+    cursor:pointer;
+    padding-top: 0.5rem;
+    padding-bottom: 1rem;
 }
-
+.user-card:hover{
+    background-color: var(--terciary);
+}
+.mat-card-subtitle{
+    font-size: 14px;
+}
+.mat-card-title {
+    font-size: 18px;
+}
 .avatar{
     /* background-image: url(''); */
     background-size: cover;
-  }
+    background-color: var(--primary);
+    color: white;
+    font-size: 22px;
+    
+}
+.text-avatar{
+    width: 100px;
+    height: 100px;
+}
   .badge{
     height: 10px;
     width: 10px;
@@ -17,7 +38,7 @@
     margin-left: -10px;
   }
   .online{
-      background-color: green;
+      background-color: #09b609;
   }
   .offline{
     background-color: lightgray;
