@@ -1,22 +1,29 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output,AfterViewChecked } from '@angular/core';
+import ContactInfo from 'src/app/models/ContactInfo';
 
 @Component({
   selector: 'user-card',
   templateUrl: './user-card.component.html',
   styleUrls: ['./user-card.component.css']
 })
-export class UserCardComponent implements OnInit {
-  @Input() public avatar:string;
-  @Input() public title:string;
-  @Input() public subtitle:string;
-  @Input() public status:string;
+export class UserCardComponent implements OnInit, AfterViewChecked {
+  // @Input() public avatar:string;
+  // @Input() public title:string;
+  // @Input() public subtitle:string;
+  // @Input() public status:string;
+
+  @Input() public contact:ContactInfo;
+  // @Output() public clicked = new;
   public parsedTitle:string;
   public parsedSubtitle:string;
   constructor() { }
 
   ngOnInit(): void {
-    this.parsedTitle = this.parseStringByLength(this.title, 20);
-    this.parsedSubtitle = this.parseStringByLength(this.subtitle, 23);
+    //console.log('contact: ',this.contact);
+    this.parsedTitle = this.parseStringByLength(this.contact.title, 20);
+    this.parsedSubtitle = this.parseStringByLength(this.contact.subtitle, 23);
+  }
+  ngAfterViewChecked() {
   }
   /**
    * 
@@ -37,6 +44,6 @@ export class UserCardComponent implements OnInit {
     return result;
   }
   public userCardClicked():void{
-    console.log({title:this.title, subtitle:this.subtitle, avatar:this.avatar, status:this.status});
+    //console.log(this.contact);
   }
 }

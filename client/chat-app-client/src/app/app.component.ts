@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ChatSectionComponent } from './components/chat-section/chat-section.component';
 import Contact from './models/ContactInbox';
 import ContactInfo from './models/ContactInfo';
 
@@ -9,19 +10,14 @@ import ContactInfo from './models/ContactInfo';
 })
 export class AppComponent implements OnInit{
   public title = 'Sistema de mensajería';
-  //public contactsInfo:Array<ContactInfo>;
+  public contactSelected:ContactInfo;
+  @ViewChild('chatSection') chatSection:ChatSectionComponent;
   constructor(){
-    //this.contactsInfo = new Array<ContactInfo>();
+    this.contactSelected = new ContactInfo('','','','','../assets/icons/default-avatar.svg');;
   }
   ngOnInit(){
-   //this.loadContacts();
-   // console.log('contacts from app: ',this.contactsInfo);
   }
-  // loadContacts(){
-  //   const contactInfo:ContactInfo = new ContactInfo('Shiba Inu', 'Dog Breed', 'online', "https://material.angular.io/assets/img/examples/shiba1.jpg");
-    
-  //   for(let i=0; i<4; i++){
-  //     this.contactsInfo.push(contactInfo);
-  //   }
-  // }
+  receiveContact(contact:ContactInfo){
+    this.chatSection.contact = contact;
+  }
 }

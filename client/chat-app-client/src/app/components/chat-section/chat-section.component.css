@@ -8,6 +8,7 @@
 }
 .contact-info{
     display:flex;
+    align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid var(--terciary);
     margin-left: 20px;

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, Input} from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked, Input,OnChanges} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ChatMessage } from 'src/app/models/ChatMessage';
 import ContactInbox from 'src/app/models/ContactInbox';
@@ -10,7 +10,7 @@ import ContactInfo from 'src/app/models/ContactInfo';
   templateUrl: './chat-section.component.html',
   styleUrls: ['./chat-section.component.css']
 })
-export class ChatSectionComponent implements OnInit, AfterViewChecked  {
+export class ChatSectionComponent implements OnInit, AfterViewChecked,OnChanges  {
   @Input() public contact: ContactInfo;
   public messages: Array<ChatMessage>;
   public dates:Array<Date>;
@@ -22,7 +22,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked  {
   @ViewChild('messageSection') messageSection:ElementRef;
 
   constructor() {
-    this.contact = new ContactInfo('010203','Shiba Inu', 'activo · escribiendo', 'online', "https://material.angular.io/assets/img/examples/shiba1.jpg");
+    //this.contact = new ContactInfo('010203','Shiba Inu', 'activo · escribiendo', 'online', "https://material.angular.io/assets/img/examples/shiba1.jpg");
 
     this.messages = new Array<ChatMessage>();
 
@@ -45,10 +45,13 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked  {
   }
 
   ngOnInit(): void {
-    
+    console.log(this.contact);
   }
   ngAfterViewChecked() {
     this.scrollToTheEnd();
+  }
+  ngOnChanges(changes:any){
+    console.log(changes);
   }
   handleSelection(event:any) {
     console.log(event.char);

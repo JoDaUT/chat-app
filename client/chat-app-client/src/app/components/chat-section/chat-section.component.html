@@ -2,7 +2,8 @@
     <!--contact info-->
     <div class="contact-info">
         <div>
-            <user-card [title]="contact.title" [subtitle]="contact.subtitle" [avatar]="contact.avatar"></user-card>
+            <!-- <user-card [contact]="contact"></user-card> -->
+            <img mat-card-avatar src="{{contact.avatar}}">
         </div>
         <div class="icon-container">
             <button mat-icon-button class="icon">
@@ -21,7 +22,7 @@
         </div>
     </div>
     <!--new message section-->
-    <div class="new-message-section">
+    <div *ngIf="contact._id" class="new-message-section">
         <form action="" class="new-message-form" #sendMessageForm="ngForm">
             <button class="emoji-picker item1" mat-icon-button (click)="toggled = !toggled" [(emojiPickerIf)]="toggled"
                 [emojiPickerDirection]="'bottom' || 'top' || 'left' || 'right'"

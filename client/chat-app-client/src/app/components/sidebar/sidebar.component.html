@@ -7,8 +7,9 @@
     </div>
     <div class="inbox-container" *ngIf="contactsInfo">
         <span class="inbox" *ngFor="let contact of contactsInfo">
-            <user-card [title]="contact.title" [subtitle]="contact.subtitle" [status]="contact.status"
-                [avatar]="contact.avatar"></user-card>
+            <!-- <user-card [title]="contact.title" [subtitle]="contact.subtitle" [status]="contact.status"
+                [avatar]="contact.avatar" [contact]="contact"></user-card> -->
+                <user-card [contact]="contact" (click)="notify(contact)"></user-card>
         </span>
     </div>
 </section>
