@@ -13,7 +13,7 @@ export class AppComponent implements OnInit{
   public contactSelected:ContactInfo;
   @ViewChild('chatSection') chatSection:ChatSectionComponent;
   constructor(){
-    this.contactSelected = new ContactInfo('','','','','../assets/icons/default-avatar.svg');;
+    this.contactSelected = new ContactInfo('','','','','assets/icons/default-avatar.svg');;
   }
   ngOnInit(){
   }
