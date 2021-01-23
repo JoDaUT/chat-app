@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output,AfterViewChecked } from '@angular/core';
+import { Component, OnInit, Input, Output, AfterViewChecked, DoCheck } from '@angular/core';
 import ContactInfo from 'src/app/models/ContactInfo';
 
 @Component({
@@ -6,24 +6,34 @@ import ContactInfo from 'src/app/models/ContactInfo';
   templateUrl: './user-card.component.html',
   styleUrls: ['./user-card.component.css']
 })
-export class UserCardComponent implements OnInit, AfterViewChecked {
-  // @Input() public avatar:string;
-  // @Input() public title:string;
-  // @Input() public subtitle:string;
-  // @Input() public status:string;
+export class UserCardComponent implements OnInit, DoCheck {
+  @Input() public avatar: string;
+  @Input() public title: string;
+  @Input() public subtitle: string;
+  @Input() public status: string;
 
-  @Input() public contact:ContactInfo;
+  //@Input() public contact:ContactInfo;
   // @Output() public clicked = new;
-  public parsedTitle:string;
-  public parsedSubtitle:string;
+  public parsedTitle: string;
+  public parsedSubtitle: string;
   constructor() { }
 
   ngOnInit(): void {
     //console.log('contact: ',this.contact);
-    this.parsedTitle = this.parseStringByLength(this.contact.title, 20);
-    this.parsedSubtitle = this.parseStringByLength(this.contact.subtitle, 23);
+    this.parsedTitle = this.parseStringByLength(this.title, 20);
+    this.parsedSubtitle = this.parseStringByLength(this.subtitle, 23);
   }
-  ngAfterViewChecked() {
+  ngDoCheck() {
+    //console.log(this.contact)
+    // if(this.title){
+    this.parsedTitle = this.parseStringByLength(this.title, 20);
+    // }
+    // if(this.subtitle){
+      if(this.title){
+        this.parsedSubtitle = 'online'
+      }
+
+    
   }
   /**
    * 
@@ -31,19 +41,19 @@ export class UserCardComponent implements OnInit, AfterViewChecked {
    * @param lengthOfParsedString 
    * @returns if string if less than 17 characters returns the same. If not returns substring+'...'
    */
-  public parseStringByLength(stringToBeParsed:string, lengthOfParsedString:number):string{
+  public parseStringByLength(stringToBeParsed: string, lengthOfParsedString: number): string {
     let result = null;
-    if(stringToBeParsed){
-      if(stringToBeParsed.length < 20){
-        result =  stringToBeParsed;
+    if (stringToBeParsed) {
+      if (stringToBeParsed.length < 20) {
+        result = stringToBeParsed;
       }
-      else{
+      else {
         result = stringToBeParsed.substr(0, lengthOfParsedString).concat('...');
       }
     }
     return result;
   }
-  public userCardClicked():void{
-    //console.log(this.contact);
+  print() {
+    //console.log(this.title, this.subtitle, this.status, this.avatar)
   }
 }

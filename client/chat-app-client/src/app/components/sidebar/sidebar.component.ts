@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import {NgForm} from '@angular/forms';
 import ContactInfo from 'src/app/models/ContactInfo';
+import { ConversationsService } from 'src/app/services/conversations.service';
 
 @Component({
   selector: 'sidebar',
@@ -11,9 +12,8 @@ export class SidebarComponent implements OnInit {
 
   @Input() public contactsInfo:Array<ContactInfo>;
   @Output() public contactSelected = new EventEmitter<ContactInfo>();
-  constructor() {
+  constructor(private _conversationsService:ConversationsService) {
     this.contactsInfo = new Array<ContactInfo>();
-    // this.contact = new ContactInfo('Shiba Inu', 'Dog Breed Patata Patata Patata Patata Dog Breed Patata Patata Patata Patata', 'online', "https://material.angular.io/assets/img/examples/shiba1.jpg");
   }
 
   ngOnInit(): void {
@@ -25,14 +25,12 @@ export class SidebarComponent implements OnInit {
     console.log('search form send');
   }
   loadContacts(){
-    const contactInfo:ContactInfo = new ContactInfo('12134','Shiba Inu', 'Dog Breed', 'online', "https://material.angular.io/assets/img/examples/shiba1.jpg");
-    
-    for(let i=0; i<4; i++){
-      this.contactsInfo.push(contactInfo);
-    }
+    this._conversationsService.loadContacts();
+    this.contactsInfo = this._conversationsService.getContacts();
+    console.log('contacts from server: ',this.contactsInfo);
   }
   notify(contact:ContactInfo){
     this.contactSelected.emit(contact);
-    //console.log(contact);
   }
+
 }
