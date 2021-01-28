@@ -19,7 +19,9 @@
     <!--messages-section-->
     <div class="messages-section scroll" #messageSection>
         <div *ngFor="let message of messages">
-            <chat-bubble [content]="message.content" [date]="message.date" [type]="message.type"
+            <chat-bubble *ngIf="message.type===0" [content]="message.content" [date]="message.date" [type]="message.type"
+                [avatar]="userCard.avatar"></chat-bubble>
+            <chat-bubble *ngIf="message.type===1" [content]="message.content" [date]="message.date" [type]="message.type"
                 [avatar]="contact.avatar"></chat-bubble>
         </div>
     </div>

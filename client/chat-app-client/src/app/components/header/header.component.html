@@ -2,7 +2,7 @@
     <img src="assets/icons/speech-bubble.svg" width="24px" height="24px">
     <span>Sistema de mensajería</span>
     <span class="example-spacer"></span>
-    <button mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+    <button matTooltip="{{userCard.title}}" mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
         <img mat-card-avatar src="{{userCard.avatar}}" class="avatar">
     </button>
     <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon"
@@ -16,7 +16,7 @@
         <mat-icon>settings</mat-icon>
         <span>Settings</span>
       </button>
-      <button mat-menu-item>
+      <button mat-menu-item (click)="logout()">
         <mat-icon>exit_to_app</mat-icon>
         <span>Logout</span>
       </button>

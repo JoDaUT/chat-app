@@ -3,8 +3,11 @@ import { NgForm } from '@angular/forms';
 import { ChatMessage } from 'src/app/models/ChatMessage';
 import ContactInbox from 'src/app/models/ContactInbox';
 import ContactInfo from 'src/app/models/ContactInfo';
+import { AuthService } from 'src/app/services/auth.service';
 import { ConversationsService } from 'src/app/services/conversations.service';
 import {ContactSelectedService} from '../../services/contact-selected.service'
+
+import firebase from 'firebase/app';
 
 @Component({
   selector: 'chat-section',
@@ -19,10 +22,15 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
   public toggled: boolean = false;
   public messageToSend:string;
 
+  public firebaseUser:firebase.User;
+  public userCard:ContactInfo;
+
   public inboxMessages:Array<ContactInbox>;
   @ViewChild('messageSection') messageSection:ElementRef;
 
-  constructor(private _contactSelectedService:ContactSelectedService, private _conversationsService:ConversationsService) {
+  constructor(private _contactSelectedService:ContactSelectedService, 
+            private _conversationsService:ConversationsService, 
+            private _auth:AuthService) {
     this.messages = new Array<ChatMessage>();
 
     this.messageToSend = '';
@@ -31,6 +39,9 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
   }
 
   ngOnInit(): void {
+    this.firebaseUser = this._auth.getUser();
+    this.userCard = new ContactInfo('',this.firebaseUser.displayName, this.firebaseUser.email, '', this.firebaseUser.photoURL);
+    
     this._contactSelectedService.currentContact.subscribe( item =>{
       this.contact = item;
     })

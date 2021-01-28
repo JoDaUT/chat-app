@@ -14,6 +14,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatMenuModule} from '@angular/material/menu';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 //components
 import { UserCardComponent } from './components/user-card/user-card.component';
@@ -28,7 +29,10 @@ import { LoginComponent } from './pages/login/login.component';
 import { ChatAppComponent } from './pages/chat-app/chat-app.component';
 
 //firebase
-
+import { AngularFireModule } from '@angular/fire';
+import { AngularFireAnalyticsModule } from '@angular/fire/analytics';
+//import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { environment } from '../environments/environment';
 @NgModule({
   declarations: [
     AppComponent,
@@ -48,12 +52,16 @@ import { ChatAppComponent } from './pages/chat-app/chat-app.component';
     MatCardModule,
     MatBadgeModule,
     MatToolbarModule,
+    MatTooltipModule,
     MatIconModule,
     MatButtonModule,
     FormsModule,
     NgxEmojiPickerModule.forRoot(),
     MatMenuModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireAnalyticsModule,
+    //AngularFirestoreModule
   ],
   providers: [],
   bootstrap: [AppComponent]
