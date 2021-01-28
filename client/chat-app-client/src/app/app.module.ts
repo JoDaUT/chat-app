@@ -12,7 +12,8 @@ import {MatBadgeModule} from '@angular/material/badge';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
-
+import {MatMenuModule} from '@angular/material/menu';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 //components
 import { UserCardComponent } from './components/user-card/user-card.component';
@@ -23,6 +24,10 @@ import { ChatBubbleComponent } from './components/chat-bubble/chat-bubble.compon
 
 //downloaded
 import  {  NgxEmojiPickerModule  }  from  'ngx-emoji-picker';
+import { LoginComponent } from './pages/login/login.component';
+import { ChatAppComponent } from './pages/chat-app/chat-app.component';
+
+//firebase
 
 @NgModule({
   declarations: [
@@ -31,9 +36,12 @@ import  {  NgxEmojiPickerModule  }  from  'ngx-emoji-picker';
     SidebarComponent,
     HeaderComponent,
     ChatSectionComponent,
-    ChatBubbleComponent
+    ChatBubbleComponent,
+    LoginComponent,
+    ChatAppComponent
   ],
   imports: [
+    AppRoutingModule,
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
@@ -43,7 +51,9 @@ import  {  NgxEmojiPickerModule  }  from  'ngx-emoji-picker';
     MatIconModule,
     MatButtonModule,
     FormsModule,
-    NgxEmojiPickerModule.forRoot()
+    NgxEmojiPickerModule.forRoot(),
+    MatMenuModule,
+    MatProgressSpinnerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -11,7 +11,6 @@ export class UserCardComponent implements OnInit, DoCheck {
   @Input() public title: string;
   @Input() public subtitle: string;
   @Input() public status: string;
-
   //@Input() public contact:ContactInfo;
   // @Output() public clicked = new;
   public parsedTitle: string;

@@ -36,3 +36,7 @@ background: var(--font2);
 ::-webkit-scrollbar-thumb:hover {
 background: var(--font1);
 }
+
+.mat-progress-spinner circle, .mat-spinner circle {
+    stroke: var(--secondary);
+}

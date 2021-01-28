@@ -1,0 +1,20 @@
+<div class="line"></div>
+
+<div class="login-container">
+    <div>
+        <img alt="logo" class="logo" src="assets/icons/people.svg" width="80px" height="80px">
+    </div>
+    <!-- <div>
+        <h1>Sistema de mensajería</h1>
+    </div> -->
+    <h1><b>Ingresar</b></h1>
+    <div class="google">
+        <button class="google-button" mat-button (click)="googleLogIn()">
+            <mat-icon><img alt="google-logo" id="google-logo" width="24px" height="24px" src="assets/icons/google-icon.svg"></mat-icon>
+            <span id="google-title">Continuar con Google</span>
+        </button>
+    </div>
+</div>
+<!-- 
+<div #loader *ngIf="loginClicked" ></div> -->
+<mat-spinner class="loader" *ngIf="loginClicked"></mat-spinner>
