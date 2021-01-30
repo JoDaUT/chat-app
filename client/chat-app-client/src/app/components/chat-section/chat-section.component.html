@@ -34,8 +34,8 @@
                 <mat-icon>sentiment_satisfied_alt</mat-icon>
             </button>
             <div class="item2">
-                <textarea type="text" placeholder="Escribe un mensaje" required class="new-message-textarea" 
-                [(ngModel)]="messageToSend" [ngModelOptions]="{standalone: true}" (keyup.enter)="handleSubmit(sendMessageForm)"></textarea>
+                <textarea name="message" type="text" placeholder="Escribe un mensaje" required class="new-message-textarea" 
+                [(ngModel)]="messageToSend" (keyup.enter)="handleSubmit(sendMessageForm)"></textarea>
             </div>
             <div class="item3">
                 <button mat-icon-button class="send-button" (click)="handleSubmit(sendMessageForm)">
