@@ -6,29 +6,35 @@
   <style>
     body {
       margin: 0;
+      width: 100%;
+      height: 100%;
       padding-bottom: 3rem;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: rgb(184, 184, 184);
     }
-
+    #contacts{
+      height: 20vh;
+      /* border: 1px solid black; */
+      overflow-y: auto;
+      background-color: lightgray;
+      color:black;
+    }
     #form {
+      border: 1px solid green;
       background: rgba(0, 0, 0, 0.15);
-      padding: 0.25rem;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
       display: flex;
-      height: 3rem;
-      box-sizing: border-box;
-      backdrop-filter: blur(100px);
+      align-items: center;
+      justify-content: space-between;
+      height: 10vh;
     }
 
     #input {
       border: none;
-      padding: 0 1rem;
-      flex-grow: 1;
+      height: 70%;
+      width: 90%;
+      box-sizing: border-box;
+      padding: 1rem 1rem 1rem 1rem;
       border-radius: 2rem;
-      margin: 0.25rem;
     }
 
     #input:focus {
@@ -36,6 +42,8 @@
     }
 
     #form>button {
+      width: 100px;
+      height: 40px;
       background: #333;
       border: none;
       padding: 0 1rem;
@@ -43,12 +51,15 @@
       border-radius: 3px;
       outline: none;
       color: #fff;
+      cursor:pointer;
     }
 
     #messages {
       list-style-type: none;
       margin: 0;
       padding: 0;
+      height: 49vh;
+      overflow-y: auto;
     }
 
     #messages>li {
@@ -62,6 +73,9 @@
 </head>
 
 <body>
+  <h3>Contacts</h3>
+  <ul id="contacts"></ul>
+  <h3>Messages</h3>
   <ul id="messages"></ul>
   <form id="form" action="">
     <input id="input" autocomplete="off" />
@@ -70,6 +84,7 @@
 
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
   <script>
+    'use strict'
     const socket = io();
 
     const nickname = prompt('Enter your nickname');
@@ -78,6 +93,10 @@
     const form = document.getElementById('form');
     const input = document.getElementById('input');
     const messages = document.getElementById('messages');
+    const contactList = document.getElementById('contacts');
+
+
+    const contacts = [];
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
@@ -85,10 +104,20 @@
       if (msg && nickname) {
         socket.emit('chat message', msg);
         createMessage(`${nickname} (you): ${msg}`);
-        //createMessage(`${msg}`);
         input.value = '';
+        messages.scrollTo(0, messages.scrollHeight);
       }
     })
+
+    input.addEventListener('focus', function (event) {
+      console.log('focus');
+      socket.emit('typing');
+    })
+
+    input.addEventListener('blur', function (event) {
+      console.log('blur');
+    })
+
     const createMessage = function (msg) {
 
       const item = document.createElement('li');
@@ -96,7 +125,7 @@
       messages.appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
     }
-    const createMessageWithUser = function (user,msg) {
+    const createMessageWithUser = function (user, msg) {
 
       const item = document.createElement('li');
       item.textContent = `${user.nickname}: ${msg}`;
@@ -104,18 +133,60 @@
       window.scrollTo(0, document.body.scrollHeight);
     }
     const userConnect = function (user) {
-      return createMessage(`${user.nickname} connected`);
+      if (user) {
+        contacts.push(user);
+        updateContactList(contactList, user, 'online');
+        console.log('total: ',messages);
+        return createMessage(`${user.nickname} connected`);
+      }
+      return undefined;
     }
+    //no hay consistencia en los users retornados por el backend
+    // const removeUserFromContacts = function(user, list){
+    //   const isEqualContact = (item)=>{
+    //     item[1].nickname === user[1].nickname;
+    //   }
+    //   list.findIndex(isEqualContact);
+    //   console.log('index: ', index);
+    // }
     const userDisconnect = function (user) {
-      return createMessage(`${user.nickname} disconnect`);
+      if (user) {
+        //removeUserFromContacts(user, contacts);
+        return createMessage(`${user.nickname} disconnect`);
+      }
+      return undefined;
+    }
+    const createContact = function(contact, status){
+      const item = document.createElement('li');
+      console.log(contact);
+      item.textContent = `${contact[1].nickname}: ${status}`
+      return item;
+    }
+    const updateContactList = function(messagesList, contact, status){
+      messagesList.appendChild(createContact(contact, status));
+    }
+    const updateUsers = function(users){
+      users.forEach( (user)=>{
+         contacts.push(user);
+         if(user[1].nickname === nickname){
+          updateContactList(contactList, user, '(you) online');
+         }
+         else{
+          updateContactList(contactList, user, 'online');
+         }
+         
+       })
+      console.log('conectados: ',contacts);
     }
 
-
-
+    //sockets listeners
+    socket.on('get users',updateUsers)
     socket.on('chat message', createMessageWithUser)
-
     socket.on('user disconnect', userDisconnect)
     socket.on('user connect', userConnect)
+    socket.on('is typing', user => {
+      createMessageWithUser(user, 'is typing...');
+    })
   </script>
 </body>
 
