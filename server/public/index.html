@@ -12,14 +12,16 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: rgb(184, 184, 184);
     }
-    #contacts{
+
+    #contacts {
       height: 20vh;
       /* border: 1px solid black; */
       overflow-y: auto;
       background-color: lightgray;
-      color:black;
+      color: black;
     }
-    #form {
+
+    .form {
       border: 1px solid green;
       background: rgba(0, 0, 0, 0.15);
       display: flex;
@@ -28,7 +30,7 @@
       height: 10vh;
     }
 
-    #input {
+    .input {
       border: none;
       height: 70%;
       width: 90%;
@@ -37,11 +39,11 @@
       border-radius: 2rem;
     }
 
-    #input:focus {
+    .input:focus {
       outline: none;
     }
 
-    #form>button {
+    button {
       width: 100px;
       height: 40px;
       background: #333;
@@ -51,7 +53,7 @@
       border-radius: 3px;
       outline: none;
       color: #fff;
-      cursor:pointer;
+      cursor: pointer;
     }
 
     #messages {
@@ -75,29 +77,39 @@
 <body>
   <h3>Contacts</h3>
   <ul id="contacts"></ul>
+  <h3>Private messages</h3>
+  <form id="private-message-form" class="form" action="
+  ">
+    <input class="input" id="private-receiver-input" placeholder="To" autocomplete="off" />
+    <input class="input" id="private-message-input" autocomplete="off" placeholder="type something" />
+    <button id="private-message">Send message</button>
+  </form>
+
+
   <h3>Messages</h3>
   <ul id="messages"></ul>
-  <form id="form" action="">
-    <input id="input" autocomplete="off" />
+  <form class="form" id="general-form" action="">
+    <input class="input" id="general-input" autocomplete="off" />
     <button>Send</button>
   </form>
 
-  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="socket.io/socket.io.js"></script>
   <script>
     'use strict'
-    const socket = io();
-
-    const nickname = prompt('Enter your nickname');
-    socket.emit('nickname', nickname);
-
-    const form = document.getElementById('form');
-    const input = document.getElementById('input');
-    const messages = document.getElementById('messages');
-    const contactList = document.getElementById('contacts');
-
-
     const contacts = [];
 
+    const socket = io('/chat');
+
+    const nickname = prompt('Enter your nickname');
+    let localUser;
+    socket.emit('nickname', nickname);
+
+    const form = document.getElementById('general-form');
+    const input = document.getElementById('general-input');
+    const messages = document.getElementById('messages');
+    const contactsHTML = document.getElementById('contacts');
+
+    //general messages*****************************************
     form.addEventListener('submit', function (event) {
       event.preventDefault();
       const msg = input.value;
@@ -109,14 +121,53 @@
       }
     })
 
+    //***private messages*********************************/
+    const privateMessageForm = document.getElementById('private-message-form');
+    const privateMessageInput = document.getElementById('private-message-input');
+    const privateMessageReceiver = document.getElementById('private-receiver-input');
+
+    privateMessageForm.addEventListener('submit', function(event){
+      event.preventDefault();
+      const msg = privateMessageInput.value;
+      const receiver = privateMessageReceiver.value;
+      if(msg && receiver){
+        const contact = findContactByNickname(receiver.trim());
+        socket.emit('private message', contact.id, msg);
+      }
+    })
+    privateMessageInput.addEventListener('focus', function (event) {
+      const receiver = privateMessageReceiver.value;
+      if(receiver){
+        const contact = findContactByNickname(receiver.trim());
+        socket.emit('private focus', contact.id);
+      }
+    })
+
+    privateMessageInput.addEventListener('blur', function (event) {
+      const receiver = privateMessageReceiver.value;
+      if(receiver){
+        const contact = findContactByNickname(receiver.trim());
+        socket.emit('private blur', contact.id);
+      }
+    })
+    
+
     input.addEventListener('focus', function (event) {
-      console.log('focus');
-      socket.emit('typing');
+      socket.emit('focus');
     })
 
     input.addEventListener('blur', function (event) {
-      console.log('blur');
+      socket.emit('blur')
     })
+
+    const findContactByNickname = function(nickname){
+      //console.log('to send: ',nickname);
+      const index = contacts.findIndex( (value, i )=>{
+        return value.nickname === nickname;
+      })
+      console.log(index);
+      return contacts[index];
+    }
 
     const createMessage = function (msg) {
 
@@ -135,58 +186,95 @@
     const userConnect = function (user) {
       if (user) {
         contacts.push(user);
-        updateContactList(contactList, user, 'online');
-        console.log('total: ',messages);
+        updatecontactsHTML(contactsHTML, user, 'online');
+        console.log('total: ', messages);
         return createMessage(`${user.nickname} connected`);
       }
       return undefined;
     }
-    //no hay consistencia en los users retornados por el backend
-    // const removeUserFromContacts = function(user, list){
-    //   const isEqualContact = (item)=>{
-    //     item[1].nickname === user[1].nickname;
-    //   }
-    //   list.findIndex(isEqualContact);
-    //   console.log('index: ', index);
-    // }
+
+    const removeUserFromContacts = function (user, contactsList) {
+      const contactsListHTML = document.getElementById('contacts');
+      console.log('user to remove: ', user);
+      console.log(contactsList, contactsListHTML);
+
+      let index = -1;
+      for (let i = 0; i < contactsList.length; i++) {
+        if (contactsList[i].id === user.id) {
+          index = i;
+          break;
+        }
+      }
+
+      contactsList.splice(index, 1);
+      console.log(index, contactsList);
+
+      removeAllChildNodes(contactsListHTML);
+      updateUsers(contactsList);
+      
+    }
     const userDisconnect = function (user) {
       if (user) {
-        //removeUserFromContacts(user, contacts);
+        removeUserFromContacts(user, contacts);
         return createMessage(`${user.nickname} disconnect`);
       }
       return undefined;
     }
-    const createContact = function(contact, status){
+    const createContact = function (contact, status) {
       const item = document.createElement('li');
       console.log(contact);
-      item.textContent = `${contact[1].nickname}: ${status}`
+      item.textContent = `${contact.nickname}: ${status}`;
       return item;
     }
-    const updateContactList = function(messagesList, contact, status){
+    const removeAllChildNodes = function (parent) {
+      while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+      }
+    }
+    const updatecontactsHTML = function (messagesList, contact, status) {
       messagesList.appendChild(createContact(contact, status));
     }
-    const updateUsers = function(users){
-      users.forEach( (user)=>{
-         contacts.push(user);
-         if(user[1].nickname === nickname){
-          updateContactList(contactList, user, '(you) online');
-         }
-         else{
-          updateContactList(contactList, user, 'online');
-         }
-         
-       })
-      console.log('conectados: ',contacts);
+    const updateUsers = function (users) {
+      let userInfo;
+      users.forEach((user) => {
+        contacts.push(user);
+        if (user.id === localUser.id) {
+          updatecontactsHTML(contactsHTML, user, '(you) online');
+        }
+        else {
+          updatecontactsHTML(contactsHTML, user, 'online');
+        }
+
+      })
+      console.log('conectados: ', contacts);
     }
 
     //sockets listeners
-    socket.on('get users',updateUsers)
+    socket.on('get my user', user => {
+      localUser = user;
+    })
+    socket.on('get users', updateUsers)
     socket.on('chat message', createMessageWithUser)
     socket.on('user disconnect', userDisconnect)
     socket.on('user connect', userConnect)
     socket.on('is typing', user => {
       createMessageWithUser(user, 'is typing...');
     })
+    socket.on('stop typing', user => {
+      createMessageWithUser(user, 'stop typing...');
+    })
+    socket.on("private message", (senderId, msg)=>{
+      console.log('from: '+senderId);
+      console.log(msg);
+    })
+
+    socket.on('private is typing', (contact)=>{
+      console.log(`private: ${contact.nickname} is typing...`);
+    })
+    socket.on('private stop typing', (contact)=>{
+      console.log(`private: ${contact.nickname} stop typing...`);
+    })
+
   </script>
 </body>
 
