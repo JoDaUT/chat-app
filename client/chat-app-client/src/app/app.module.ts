@@ -25,6 +25,8 @@ import { ChatBubbleComponent } from './components/chat-bubble/chat-bubble.compon
 
 //downloaded
 import  {  NgxEmojiPickerModule  }  from  'ngx-emoji-picker';
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+
 import { LoginComponent } from './pages/login/login.component';
 import { ChatAppComponent } from './pages/chat-app/chat-app.component';
 
@@ -33,6 +35,11 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFireAnalyticsModule } from '@angular/fire/analytics';
 //import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { environment } from '../environments/environment';
+
+import { HttpClientModule } from '@angular/common/http';
+
+//const config: SocketIoConfig = { url: 'http://localhost:3000/chat', options: {withCredentials: true} };
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -62,6 +69,8 @@ import { environment } from '../environments/environment';
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAnalyticsModule,
     //AngularFirestoreModule
+    HttpClientModule,
+    //SocketIoModule.forRoot(config)
   ],
   providers: [],
   bootstrap: [AppComponent]

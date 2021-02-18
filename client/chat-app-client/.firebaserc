@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "chat-app-ac2fe": {
+      "hosting": {
+        "chat-app-client": [
+          "chat-app-ac2fe"
+        ]
+      }
+    }
+  }
+}

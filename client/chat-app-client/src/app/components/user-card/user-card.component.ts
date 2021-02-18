@@ -11,23 +11,16 @@ export class UserCardComponent implements OnInit, DoCheck {
   @Input() public title: string;
   @Input() public subtitle: string;
   @Input() public status: string;
-  //@Input() public contact:ContactInfo;
-  // @Output() public clicked = new;
   public parsedTitle: string;
   public parsedSubtitle: string;
   constructor() { }
 
   ngOnInit(): void {
-    //console.log('contact: ',this.contact);
     this.parsedTitle = this.parseStringByLength(this.title, 20);
     this.parsedSubtitle = this.parseStringByLength(this.subtitle, 23);
   }
   ngDoCheck() {
-    //console.log(this.contact)
-    // if(this.title){
     this.parsedTitle = this.parseStringByLength(this.title, 20);
-    // }
-    // if(this.subtitle){
       if(this.title){
         this.parsedSubtitle = 'online'
       }
@@ -53,6 +46,5 @@ export class UserCardComponent implements OnInit, DoCheck {
     return result;
   }
   print() {
-    //console.log(this.title, this.subtitle, this.status, this.avatar)
   }
 }

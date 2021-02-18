@@ -18,7 +18,7 @@ export class SidebarComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadContacts();
-    console.log('contacts from sidebar: ',this.contactsInfo);
+    //console.log('contacts from sidebar: ',this.contactsInfo);
   }
 
   onSubmit(form:NgForm): void{
@@ -27,7 +27,7 @@ export class SidebarComponent implements OnInit {
   loadContacts(){
     this._conversationsService.loadContacts();
     this.contactsInfo = this._conversationsService.getContacts();
-    console.log('contacts from server: ',this.contactsInfo);
+    //console.log('contacts from server: ',this.contactsInfo);
   }
   notify(contact:ContactInfo){
     this.contactSelected.emit(contact);

@@ -119,6 +119,10 @@
               "devServerTarget": "chat-app-client:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "@angular/fire:deploy",
+          "options": {}
         }
       }
     }

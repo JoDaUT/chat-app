@@ -47,7 +47,6 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
     })
     //update conversation
     this._conversationsService.currentMessages.subscribe( msg=>{
-      //console.log(msg)
       this.messages = msg;
     })
   }
@@ -55,21 +54,15 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
   }
   ngAfterViewChecked() {
     this.scrollToTheEnd();
-    
   }
 
   handleSelection(event:any) {
-    //console.log(event.char);
     this.messageToSend += event.char;
-    //console.log(this.messageToSend);
   }
   handleSubmit(form:NgForm){
     if(this.messageToSend.length && this.contact._id){
-      //console.log('submit');
       this.messages.push(new ChatMessage(this.messageToSend,new Date(), 0));
-      //console.log('messageSection:',this.messageSection.nativeElement);
       this.scrollToTheEnd();
-      
       form.reset();
       this.messageToSend = '';
     }
@@ -79,19 +72,5 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
     this.messageSection.nativeElement.scrollTop = this.messageSection.nativeElement.scrollHeight;
   }
   loadMessages(){
-    // this.messages = new Array<ChatMessage>();
-    // this.messages.push(new ChatMessage("This one adds a right triangle on the left, flush at the top by using .tri-right and .left-top to specify the location.", new Date(), 0));
-    // this.messages.push(new ChatMessage("helo im ok 😍😍😍", new Date(),1));
-    // this.messages.push(new ChatMessage("bye 😎😎", new Date(),0));
-    // this.messages.push(new ChatMessage("Veniam nisi quis duis magna exercitation excepteur amet excepteur occaecat. 🍕🍕🚓🚗🏳‍🌈", new Date(),1));
-    // this.messages.push(new ChatMessage("Commodo culpa fugiat exercitation non amet minim id quis est incididunt aliquip fugiat dolore. Adipisicing laborum occaecat elit duis consequat. Dolore nisi aliqua ea ea minim et. Magna eiusmod deserunt sunt in duis reprehenderit voluptate velit minim pariatur aute. Mollit dolor 💛💚💖", new Date(),1));
-    // this.messages.push(new ChatMessage("helo im ok 😍😍😍", new Date(),1));
-    // this.messages.push(new ChatMessage("This one adds a right triangle on the left, flush at the top by using .tri-right and .left-top to specify the location.", new Date(), 0));
-    // this.messages.push(new ChatMessage("helo im ok 😍😍😍", new Date(),1));
-    // this.messages.push(new ChatMessage("bye 😎😎", new Date(),0));
-    // this.messages.push(new ChatMessage("Veniam nisi quis duis magna exercitation excepteur amet excepteur occaecat. 🍕🍕🚓🚗🏳‍🌈", new Date(),1));
-    // this.messages.push(new ChatMessage("Commodo culpa fugiat exercitation non amet minim id quis est incididunt aliquip fugiat dolore. Adipisicing laborum occaecat elit duis consequat. Dolore nisi aliqua ea ea minim et. Magna eiusmod deserunt sunt in duis reprehenderit voluptate velit minim pariatur aute. Mollit dolor 💛💚💖", new Date(),1));
-    // this.messages.push(new ChatMessage("helo im ok 😍😍😍", new Date(),1));
-
   }
 }

@@ -5,6 +5,10 @@ import ContactInbox from '../models/ContactInbox';
 import ContactInfo from '../models/ContactInfo';
 import { ContactSelectedService } from './contact-selected.service';
 
+import {io} from 'socket.io-client/build/index';
+import { environment } from 'src/environments/environment';
+//import { Socket } from 'ngx-socket-io';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -17,7 +21,12 @@ export class ConversationsService {
 
   public inbox:Array<ContactInbox>;
 
-  constructor(private _contactSelectedService: ContactSelectedService) {
+  public api:{url:string};
+  private _socket:any;
+
+  constructor(private _contactSelectedService: ContactSelectedService,
+              //private _socket: Socket
+              ) {
     this.messagesSource = new BehaviorSubject<Array<ChatMessage>>(new Array<ChatMessage>());
     this.currentMessages = this.messagesSource.asObservable();
 
@@ -43,8 +52,22 @@ export class ConversationsService {
       this.currentContact = item;
       this.updateConversation();
     })
-  }
+    this.api = environment.api;
+    this._socket = io(this.api.url+'/chat');
 
+    this.emit('token-access',1234);
+    this.listen('get my user').subscribe( res=>{console.log('my usr: ',res)});
+  }
+  listen(eventName:string){
+    return new Observable( (Suscriber)=>{
+      this._socket.on(eventName, (data)=>{
+        Suscriber.next(data);
+      })
+    })
+  }
+  emit(eventName:string, data:any){
+    this._socket.emit(eventName, data);
+  }
   updateConversation() {
     if (this.messages.length && this.currentContact._id) {
       const found = this.inbox.find(element =>element.contactInfo._id === this.currentContact._id);
@@ -95,7 +118,7 @@ export class ConversationsService {
     for(let item of this.inbox){
       contacts.push(item.contactInfo);
     }
-    console.log('contacts in server: ',contacts);
+    //console.log('contacts in server: ',contacts);
     return contacts;
   }
 }
