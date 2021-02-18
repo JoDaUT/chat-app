@@ -4,3 +4,4 @@ class User{
         this.nickname = nickname;
     }
 }
+module.exports = User;

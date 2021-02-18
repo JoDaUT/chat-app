@@ -4,13 +4,13 @@ class ChatService{
         this.users = new Map();
     }
     getArrayOfAllUsers(){
-        return new Array.from(this.users.values());
+        return Array.from(this.users.values());
     }
     getUserById(id){
         return this.users.get(id);
     }
     addUser(user){
-        if(this.users.size < this.capacity){
+        if(this.capacity && this.users.size < this.capacity){
             this.users.set(user.id, user);
             return true;
         }
@@ -30,4 +30,5 @@ class ChatService{
         }
     }
 }
-module.exports = new ChatService();
+const capacity = 10;
+module.exports = new ChatService(capacity);
