@@ -1,4 +1,5 @@
 const firebase = require('firebase');
+const chatService = require('../services/chat-service');
 const firebaseConfig = {
     apiKey: "AIzaSyAqNdZSmMQrk3Sw5SZe83e12ipLzgFLl1w",
     authDomain: "chat-app-ac2fe.firebaseapp.com",
@@ -12,22 +13,23 @@ const app = firebase.initializeApp(firebaseConfig);
 
 class AuthController {
     login(req, res) {
-        console.log('heelo hello');
-        const tokenId = req.body;
-        console.log('tokenId: ', { tokenId });
-        const credentials = firebase.auth.GoogleAuthProvider.credential(tokenId);
-        firebase.auth().signInWithCredential(credential).catch(function (error) {
-            // Handle Errors here.
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            // The email of the user's account used.
-            const email = error.email;
-            // The firebase.auth.AuthCredential type that was used.
-            const credential = error.credential;
-            // ...
-            res.status(403).send({errorCode, errorMessage, email, credential});
-        })
-        res.send(credentials);
+        const data = req.body;
+        const tokenId = data.token;
+        const accessToken = data.accessToken;
+        const user = data.user;
+
+        if(!tokenId){
+            res.status(403).send('token id not defined');
+        }
+        if(!accessToken){
+            res.status(403).send('access token not defined');
+        }
+        if(!user){
+            res.status(403).send('user not defined');
+        }
+        chatService.addUser(user);
+        console.log('current users: ',chatService.getArrayOfAllUsers());
+        res.status(200).send(user);      
     }
 }
 module.exports = new AuthController();

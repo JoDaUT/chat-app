@@ -6,23 +6,23 @@ class ChatService{
     getArrayOfAllUsers(){
         return Array.from(this.users.values());
     }
-    getUserById(id){
-        return this.users.get(id);
+    getUserById(socketId){
+        return this.users.get(socketId);
     }
     addUser(user){
         if(this.capacity && this.users.size < this.capacity){
-            this.users.set(user.id, user);
+            this.users.set(user.socketId, user);
             return true;
         }
         else{
             return false;
         }   
     };
-    removeUser(id){
-       return this.users.delete(id);
+    removeUser(socketId){
+       return this.users.delete(socketId);
     }
     updateUser(user){
-        const result = this.removeUser(user.id);
+        const result = this.removeUser(user.socketId);
         if(result){
             if(this.addUser(user)){
                 return true;
@@ -30,5 +30,5 @@ class ChatService{
         }
     }
 }
-const capacity = 10;
+const capacity = 100;
 module.exports = new ChatService(capacity);

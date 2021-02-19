@@ -1,7 +1,7 @@
 class User{
-    constructor(id, nickname){
-        this.id = id;
-        this.nickname = nickname;
+    constructor(socketId, data){
+        this.socketId = socketId;
+        this.data = data;
     }
 }
 module.exports = User;
