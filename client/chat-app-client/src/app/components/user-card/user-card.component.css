@@ -13,10 +13,10 @@
     background-color: var(--terciary);
 }
 .mat-card-subtitle{
-    font-size: 14px;
+    font-size: 12px;
 }
 .mat-card-title {
-    font-size: 18px;
+    font-size: 14px;
 }
 .avatar{
     /* background-image: url(''); */

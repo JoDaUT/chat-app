@@ -16,11 +16,11 @@ export class UserCardComponent implements OnInit, DoCheck {
   constructor() { }
 
   ngOnInit(): void {
-    this.parsedTitle = this.parseStringByLength(this.title, 20);
+    this.parsedTitle = this.parseStringByLength(this.title, 28);
     this.parsedSubtitle = this.parseStringByLength(this.subtitle, 23);
   }
   ngDoCheck() {
-    this.parsedTitle = this.parseStringByLength(this.title, 20);
+    this.parsedTitle = this.parseStringByLength(this.title, 28);
       if(this.title){
         this.parsedSubtitle = 'online'
       }
@@ -36,7 +36,7 @@ export class UserCardComponent implements OnInit, DoCheck {
   public parseStringByLength(stringToBeParsed: string, lengthOfParsedString: number): string {
     let result = null;
     if (stringToBeParsed) {
-      if (stringToBeParsed.length < 20) {
+      if (stringToBeParsed.length < lengthOfParsedString) {
         result = stringToBeParsed;
       }
       else {
