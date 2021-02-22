@@ -5,7 +5,7 @@ import ContactInbox from '../../models/ContactInbox';
 import ContactInfo from '../../models/ContactInfo';
 import { ContactSelectedService } from '../contact-selected-service/contact-selected.service';
 
-import {io} from 'socket.io-client/build/index';
+import { io } from 'socket.io-client/build/index';
 import { environment } from 'src/environments/environment';
 
 import { HttpClient } from '@angular/common/http';
@@ -22,65 +22,112 @@ export class ConversationsService {
   private messagesSource: BehaviorSubject<Array<ChatMessage>>;
   public currentMessages: Observable<Array<ChatMessage>>;
 
-  public inbox:Array<ContactInbox>;
+  public inbox: Array<ContactInbox>;
+  public contactsInfo: ContactInfo[];
+  public api: { url: string };
 
-  public api:{url:string};
- 
   constructor(private _contactSelectedService: ContactSelectedService,
-              private _http:HttpClient,
-              private _authService:AuthService,
-              private _socket:SocketService
-              ) {
+    private _http: HttpClient,
+    private _authService: AuthService,
+    private _socket: SocketService
+  ) {
     this.messagesSource = new BehaviorSubject<Array<ChatMessage>>(new Array<ChatMessage>());
     this.currentMessages = this.messagesSource.asObservable();
 
     this.inbox = new Array<ContactInbox>();
-    
     this.messages = new Array<ChatMessage>();
+    this.contactsInfo = new Array<ContactInfo>();
+    this.loadContactsFromAPI();
+    this.handleContactConnection();
+    this.handleContactDisconnection();
+    this.handleContactSelected();
+    this.handleNewMessages();
+  }
 
-    this.messages.push(new ChatMessage("This one adds a right triangle on the left, flush at the top by using .tri-right and .left-top to specify the location.", new Date(), 0));
-    this.messages.push(new ChatMessage("helo im ok 😍😍😍", new Date(), 1));
-    this.messages.push(new ChatMessage("bye 😎😎", new Date(), 0));
-    this.messages.push(new ChatMessage("Veniam nisi quis duis magna exercitation excepteur amet excepteur occaecat. 🍕🍕🚓🚗🏳‍🌈", new Date(), 1));
-
-    this.messages.push(new ChatMessage("Commodo culpa fugiat exercitation non amet minim id quis est incididunt aliquip fugiat dolore. Adipisicing laborum occaecat elit duis consequat. Dolore nisi aliqua ea ea minim et. Magna eiusmod deserunt sunt in duis reprehenderit voluptate velit minim pariatur aute. Mollit dolor 💛💚💖", new Date(), 1));
-    this.messages.push(new ChatMessage("helo im ok 😍😍😍", new Date(), 1));
-    this.messages.push(new ChatMessage("This one adds a right triangle on the left, flush at the top by using .tri-right and .left-top to specify the location.", new Date(), 0));
-    this.messages.push(new ChatMessage("helo im ok 😍😍😍", new Date(), 1));
-    this.messages.push(new ChatMessage("bye 😎😎", new Date(), 0));
-    this.messages.push(new ChatMessage("Veniam nisi quis duis magna exercitation excepteur amet excepteur occaecat. 🍕🍕🚓🚗🏳‍🌈", new Date(), 1));
-    this.messages.push(new ChatMessage("Commodo culpa fugiat exercitation non amet minim id quis est incididunt aliquip fugiat dolore. Adipisicing laborum occaecat elit duis consequat. Dolore nisi aliqua ea ea minim et. Magna eiusmod deserunt sunt in duis reprehenderit voluptate velit minim pariatur aute. Mollit dolor 💛💚💖", new Date(), 1));
-    this.messages.push(new ChatMessage("helo im ok 😍😍😍", new Date(), 1));
-
+  handleContactSelected(){
     this._contactSelectedService.currentContact.subscribe(item => {
       this.currentContact = item;
       this.updateConversation();
     })
-    
   }
-
+  loadContactsFromAPI() {
+    this.getContacts().subscribe(contacts => {
+      for (const contact of contacts) {
+        this.addContact(contact);
+        this.createConversation(contact);
+      }
+    })
+  }
   updateConversation() {
-    // if (this.messages.length && this.currentContact._id) {
-    //   const found = this.inbox.find(element =>element.contactInfo.socketId === this.currentContact.socketId);
-    //   if(!found.messages){
-    //     found.messages = [this.messages.pop(), this.messages.pop()];
-    //   }
-    //   this.messagesSource.next(found.messages);
-    // }
-    // else {
-    //   this.messagesSource.next(new Array<ChatMessage>());
-    // }
-
+    const conversation = this.inbox.find((value: ContactInbox) => value.socketId === this.currentContact.socketId);
+    console.log('alerta:', conversation);
+    if (conversation) {
+      this.messagesSource.next(conversation.messages);
+    }
   }
-  sendMessage(message:ChatMessage, receiver:ContactInfo){
-    console.log('msg to send: ', message, 'to: ',receiver.socketId);
+  sendMessage(message: ChatMessage, receiver: ContactInfo) {
+    console.log('msg to send: ', message, 'to: ', receiver.socketId);
     this._socket.emitTo('emit private message', receiver.socketId, message);
   }
-  receiveNewMessages():Observable<any>{
+  getNewMessagesFromAPI() {
     return this._socket.listen('receive private message');
   }
-  getContacts():Observable < any >{
+  handleNewMessages() {
+    this.getNewMessagesFromAPI().subscribe(
+      (data: any) => {
+        const senderId: string = data.socketId;
+        const message: ChatMessage = data.msg;
+        console.log('new message:', message)
+        const conversation:ContactInbox = this.inbox.find((value: ContactInbox) => value.socketId === senderId);
+        console.log(conversation);
+
+        conversation.messages.push(message);
+      }
+    )
+  }
+  receiveNewMessages(contact: ContactInfo): Observable<any> {
+    return this._socket.listen('receive private message');
+  }
+  getContacts(): Observable<any> {
     return this._socket.listen('get users');
   }
-  
+  handleContactConnection() {
+    this._socket.listen('user connect').subscribe((user: any) => {
+      const contact = this.addContact(user);
+      this.createConversation(contact);
+    })
+  }
+  addContact(user: any) {
+    const socketId = user.socketId;
+    const contact = user.data;
+    console.log('user conect: ', user.socketId);
+    const contactInfo = new ContactInfo(contact.uid, contact.displayName, contact.email, 'online', contact.photoURL, socketId);
+    this.contactsInfo.push(contactInfo);
+    return contactInfo;
+  }
+  createConversation(contact: ContactInfo) {
+    const conversation: ContactInbox = new ContactInbox();
+    conversation.socketId = contact.socketId;
+    conversation.messages = new Array<ChatMessage>();
+    this.inbox.push(conversation);
+  }
+  handleContactDisconnection() {
+    this._socket.listen('user disconnect').subscribe((user: any) => {
+      console.log('user disconnect: ', user);
+      const index = this.contactsInfo.findIndex((value: ContactInfo) => value.socketId === user.socketId)
+      console.log(index);
+      this.deleteContactFormList(index);
+      this.deleteConversation(index);
+    })
+  }
+  deleteContactFormList(index) {
+    if (index > -1) {
+      this.contactsInfo.splice(index, 1);
+    }
+  }
+  deleteConversation(index) {
+    if (index > -1) {
+      this.inbox.splice(index, 1);
+    }
+  }
 }

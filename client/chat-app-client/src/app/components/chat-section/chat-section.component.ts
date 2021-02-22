@@ -46,11 +46,12 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
     this.userCard = new ContactInfo('',this.firebaseUser.displayName, this.firebaseUser.email, '', this.firebaseUser.photoURL,'');
     
     this.handleContactSelected();
-    this.handleNewMessages();
+    //this.handleNewMessages();
     //update conversation
-    // this._conversationsService.currentMessages.subscribe( msg=>{
-    //   this.messages = msg;
-    // })
+    this._conversationsService.currentMessages.subscribe( msg=>{
+      console.log('get new messages');
+      this.messages = msg;
+    })
     
   }
   ngDoCheck(){
@@ -82,7 +83,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
     
   }
   handleNewMessages(){
-    this._conversationsService.receiveNewMessages().subscribe(
+    this._conversationsService.receiveNewMessages(this.contact).subscribe(
       (data:any)=>{
         const senderId:string = data.socketId;
         const message:ChatMessage = data.msg;
