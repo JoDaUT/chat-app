@@ -85,6 +85,17 @@ export class ConversationsService {
       }
     )
   }
+  getMessageNotifications():Observable<string>{
+    return new Observable( (Suscriber)=>{
+      this.getNewMessagesFromAPI().subscribe(
+        (data: any) => {
+          const senderId: string = data.socketId;
+          const message: ChatMessage = data.msg;
+          Suscriber.next(senderId);
+        }
+      )
+    })
+  }
   receiveNewMessages(contact: ContactInfo): Observable<any> {
     return this._socket.listen('receive private message');
   }

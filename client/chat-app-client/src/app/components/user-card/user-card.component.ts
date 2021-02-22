@@ -11,6 +11,7 @@ export class UserCardComponent implements OnInit, DoCheck {
   @Input() public title: string;
   @Input() public subtitle: string;
   @Input() public status: string;
+  @Input('badge') public badgeContent:number;
   public parsedTitle: string;
   public parsedSubtitle: string;
   constructor() { }

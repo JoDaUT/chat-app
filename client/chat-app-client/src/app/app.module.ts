@@ -70,7 +70,7 @@ import { HttpClientModule } from '@angular/common/http';
     AngularFireAnalyticsModule,
     //AngularFirestoreModule
     HttpClientModule,
-    //SocketIoModule.forRoot(config)
+
   ],
   providers: [],
   bootstrap: [AppComponent]

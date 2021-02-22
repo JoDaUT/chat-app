@@ -6,12 +6,16 @@ import { map } from 'rxjs/operators';
 import ContactInbox from '../../models/ContactInbox';
 import { Observable } from 'rxjs';
 import { SocketService } from 'src/app/services/socket-service/socket.service';
+
+
+
 @Component({
   selector: 'sidebar',
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
+  public badgeList = {};
 
   @Input() public contactsInfo: Array<ContactInfo>;
   @Output() public contactSelected = new EventEmitter<ContactInfo>();
@@ -24,6 +28,7 @@ export class SidebarComponent implements OnInit {
     this.loadContacts();
     this.handleContactDisconnection();
     this.handleContactConnection();
+    this.handleMessageNotification();
   }
 
   onSubmit(form: NgForm): void {
@@ -37,10 +42,17 @@ export class SidebarComponent implements OnInit {
       console.log('user disconnect: ', user.socketId);
       const index = this.contactsInfo.findIndex((value: ContactInfo) => value.socketId === user.socketId)
       console.log(index);
-      this.deleteContactFormList(index);
+      this.deleteBadgeFromList(index);
+      this.deleteContactFromList(index);
+
     })
   }
-  deleteContactFormList(index) {
+  deleteBadgeFromList(index) {
+    if (index > -1) {
+      delete this.badgeList[this.contactsInfo[index].socketId]
+    }
+  }
+  deleteContactFromList(index) {
     if (index > -1) {
       this.contactsInfo.splice(index, 1);
     }
@@ -51,6 +63,7 @@ export class SidebarComponent implements OnInit {
       const contact = user.data;
       console.log('user conect: ', user.socketId);
       this.contactsInfo.push(new ContactInfo(contact.uid, contact.displayName, contact.email, 'online', contact.photoURL, socketId));
+      this.badgeList[socketId] = 0;
     })
   }
   loadContacts() {
@@ -60,6 +73,7 @@ export class SidebarComponent implements OnInit {
         const contact = item.data;
         const contactInfo: ContactInfo = new ContactInfo(contact.uid, contact.displayName, contact.email, 'online', contact.photoURL, socketId);
         this.contactsInfo.push(contactInfo);
+        this.badgeList[contactInfo.socketId] = 0;
       }
       console.log('from service: ', this.contactsInfo.map((value: ContactInfo) => value.socketId));
     },
@@ -67,6 +81,19 @@ export class SidebarComponent implements OnInit {
   }
   notifyContactSelected(contact: ContactInfo) {
     this.contactSelected.emit(contact);
+    this.resetBadge(contact.socketId);
   }
-
+  resetBadge(id:string){
+    this.badgeList[id] = 0;
+  }
+  handleMessageNotification() {
+    this._conversationsService.getMessageNotifications().subscribe(
+      (id: string) => {
+        if (this.badgeList) {
+          this.badgeList[id]++;
+        }
+      }, (err) => {
+        console.log("Error: handleMessageNotification");
+      })
+  }
 }

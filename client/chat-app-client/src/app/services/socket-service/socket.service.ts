@@ -18,7 +18,7 @@ export class SocketService{
     const user = this._authService.getUser();
     this.emit('user', user);
   }
-  listen(eventName:string){
+  listen(eventName:string):Observable<any>{
     return new Observable( (Suscriber)=>{
       this._socket.on(eventName, (data)=>{
         Suscriber.next(data);

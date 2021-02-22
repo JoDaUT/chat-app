@@ -2,7 +2,7 @@
     min-width: 240px;
     max-width: 600px;
     box-shadow: none;
-    /* width: 230px; */
+    width: 240px;
     height:30px;
     color: var(--font1);
     cursor:pointer;

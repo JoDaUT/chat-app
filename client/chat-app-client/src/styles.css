@@ -40,3 +40,8 @@ background: var(--font1);
 .mat-progress-spinner circle, .mat-spinner circle {
     stroke: var(--secondary);
 }
+
+.mat-badge-content {
+    background: #E69B30;
+    color: white;
+}

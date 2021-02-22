@@ -1,4 +1,4 @@
-<mat-card class="user-card">
+<mat-card class="user-card" >
     <mat-card-header>
         <div mat-card-avatar *ngIf="avatar">
             <img mat-card-avatar src="{{avatar}}"  >
@@ -8,7 +8,7 @@
             <img mat-card-avatar src="assets/icons/default-avatar.svg"  >
             <div *ngIf="status==='online' || status==='offline'" class="badge"  [ngClass]="{'online': status==='online', 'offline': status==='offline'}"></div>
         </div>
-        <mat-card-title>{{parsedTitle}}</mat-card-title>
+        <mat-card-title [matBadge]="badgeContent" matBadgeSize="small" [matBadgeHidden]="badgeContent<=0">{{parsedTitle}}</mat-card-title>
         <mat-card-subtitle>{{parsedSubtitle}}</mat-card-subtitle>
     </mat-card-header>
 </mat-card>
