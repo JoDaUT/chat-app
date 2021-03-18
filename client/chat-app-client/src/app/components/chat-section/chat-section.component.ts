@@ -6,10 +6,12 @@ import ContactInfo from 'src/app/models/ContactInfo';
 import { AuthService } from 'src/app/services/auth-service/auth.service';
 import { ConversationsService } from 'src/app/services/conversations-service/conversations.service';
 import {ContactSelectedService} from '../../services/contact-selected-service/contact-selected.service'
-
+// import * as Peer from 'peerjs';
 import firebase from 'firebase/app';
 import { SocketService } from 'src/app/services/socket-service/socket.service';
-
+import { PeerService } from '../../services/peer-service/peer.service';
+import { Router} from '@angular/router';
+declare var Peer:any;
 @Component({
   selector: 'chat-section',
   templateUrl: './chat-section.component.html',
@@ -32,7 +34,9 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
   constructor(private _contactSelectedService:ContactSelectedService, 
             private _conversationsService:ConversationsService, 
             private _auth:AuthService,
-            private _socket:SocketService
+            private _socket:SocketService,
+            private _peer:PeerService,
+            private _router:Router
             ) {
     this.messages = new Array<ChatMessage>();
 
@@ -43,11 +47,9 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
 
   ngOnInit(): void {
     this.firebaseUser = this._auth.getUser();
-    this.userCard = new ContactInfo('',this.firebaseUser.displayName, this.firebaseUser.email, '', this.firebaseUser.photoURL,'');
+    this.userCard = new ContactInfo(this.firebaseUser.uid,this.firebaseUser.displayName, this.firebaseUser.email, '', this.firebaseUser.photoURL,'');
     
     this.handleContactSelected();
-    //this.handleNewMessages();
-    //update conversation
     this._conversationsService.currentMessages.subscribe( msg=>{
       console.log('get new messages');
       this.messages = msg;
@@ -95,5 +97,24 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
   scrollToTheEnd(){
     this.messageSection.nativeElement.scrollTop = this.messageSection.nativeElement.scrollHeight;
   }
+  sendCallRequest(){
 
+  }
+  makeAVideoCall(){
+    console.log('make a video call')
+  }
+  async makeACall(){
+    //const peerId = await this._peer.createPeer();
+    const peerId = this._peer.id;
+    console.log('id from chat section: ',peerId)
+    console.log('make conn with: ',this.contact._id);
+    this._peer.makeConnection(this.contact._id, this.userCard).then( (answer:boolean)=>{
+      if(answer){
+        this._router.navigate(['call']);
+      }
+      else{
+        console.log('call denegated');
+      }
+    })
+  }
 }

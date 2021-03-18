@@ -12,6 +12,7 @@ export class ChatAppComponent implements OnInit {
 
   public title = 'Sistema de mensajería';
   public contactSelected:ContactInfo;
+  
   public user:any;
 
   constructor(private _contactSelectedService: ContactSelectedService){

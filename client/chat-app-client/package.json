@@ -24,6 +24,7 @@
     "@angular/router": "~9.1.9",
     "@types/socket.io-client": "^1.4.35",
     "firebase": "^7.0 || ^8.0",
+    "jquery": "^3.5.1",
     "ngx-emoji-picker": "^0.1.6",
     "ngx-socket-io": "^3.2.0",
     "rxjs": "~6.5.4",

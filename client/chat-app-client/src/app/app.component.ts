@@ -10,17 +10,5 @@ import { Component} from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent{
-  // public title = 'Sistema de mensajería';
-  // public contactSelected:ContactInfo;
-  // //@ViewChild('chatSection') chatSection:ChatSectionComponent;
-  // constructor(private _contactSelectedService: ContactSelectedService){
-  //   this.contactSelected = new ContactInfo('','','','','assets/icons/default-avatar.svg');;
-  // }
-  // ngOnInit(){
-  // }
-  // receiveContact(contact:ContactInfo){
-  //   //this.chatSection.contact = contact;
-  //   //console.log(contact);
-  //   this._contactSelectedService.updateContactSelected(contact);
-  // }
+  
 }

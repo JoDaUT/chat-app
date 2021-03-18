@@ -1,4 +1,4 @@
-.sidebar-container{
+.custom-sidebar-container{
 }
 .search-container{
     height: 30px;
@@ -40,7 +40,6 @@
 }
 .inbox-container{
     border-right: 1px solid var(--terciary);
-    /* border: 1px solid red; */
     margin-top: 1rem;
     min-height: 68vh;
     height: 68vh;

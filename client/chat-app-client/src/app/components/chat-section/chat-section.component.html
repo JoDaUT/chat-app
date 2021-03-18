@@ -1,17 +1,12 @@
 <section class="chat-section-contaner">
-    <!--contact info-->
     <div class="contact-info">
-        <!-- <div> -->
-            <!-- <user-card [contact]="contact"></user-card> -->
-            <!-- <img mat-card-avatar src="{{contact.avatar}}"> -->
             <user-card [title]="contact.title" [subtitle]="contact.subtitle" [status]="contact.status"
                 [avatar]="contact.avatar"></user-card>
-        <!-- </div> -->
         <div class="icon-container">
-            <button mat-icon-button class="icon">
+            <button mat-icon-button class="icon" (click)="makeAVideoCall()">
                 <mat-icon>videocam</mat-icon>
             </button>
-            <button mat-icon-button class="icon">
+            <button mat-icon-button class="icon" (click)="makeACall()">
                 <mat-icon>call</mat-icon>
             </button>
         </div>

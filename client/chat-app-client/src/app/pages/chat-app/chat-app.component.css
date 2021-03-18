@@ -1,5 +1,6 @@
-.container{
+.custom-container{
     width: 90%;
+    min-width: 700px;
     height: 90vh;
     border-radius: 5px;
     box-shadow:1px 1px 20px grey;  

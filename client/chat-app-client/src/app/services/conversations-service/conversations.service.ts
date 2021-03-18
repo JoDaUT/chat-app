@@ -66,7 +66,7 @@ export class ConversationsService {
     }
   }
   sendMessage(message: ChatMessage, receiver: ContactInfo) {
-    console.log('msg to send: ', message, 'to: ', receiver.socketId);
+    //console.log('msg to send: ', message, 'to: ', receiver.socketId);
     this._socket.emitTo('emit private message', receiver.socketId, message);
   }
   getNewMessagesFromAPI() {
@@ -77,9 +77,9 @@ export class ConversationsService {
       (data: any) => {
         const senderId: string = data.socketId;
         const message: ChatMessage = data.msg;
-        console.log('new message:', message)
+        //console.log('new message:', message)
         const conversation:ContactInbox = this.inbox.find((value: ContactInbox) => value.socketId === senderId);
-        console.log(conversation);
+        //console.log(conversation);
 
         conversation.messages.push(message);
       }
@@ -111,7 +111,7 @@ export class ConversationsService {
   addContact(user: any) {
     const socketId = user.socketId;
     const contact = user.data;
-    console.log('user conect: ', user.socketId);
+    //('user conect: ', user.socketId);
     const contactInfo = new ContactInfo(contact.uid, contact.displayName, contact.email, 'online', contact.photoURL, socketId);
     this.contactsInfo.push(contactInfo);
     return contactInfo;
@@ -124,9 +124,9 @@ export class ConversationsService {
   }
   handleContactDisconnection() {
     this._socket.listen('user disconnect').subscribe((user: any) => {
-      console.log('user disconnect: ', user);
+      //console.log('user disconnect: ', user);
       const index = this.contactsInfo.findIndex((value: ContactInfo) => value.socketId === user.socketId)
-      console.log(index);
+      //console.log(index);
       this.deleteContactFormList(index);
       this.deleteConversation(index);
     })

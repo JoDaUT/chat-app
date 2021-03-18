@@ -1,0 +1,9 @@
+.modal-button{
+    outline: none;
+    border: none;
+    border-radius: 50%; 
+   
+}
+.modal-button:active{
+    opacity: 0.9;
+}

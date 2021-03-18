@@ -39,9 +39,9 @@ export class SidebarComponent implements OnInit {
   }
   handleContactDisconnection() {
     this._socket.listen('user disconnect').subscribe((user: any) => {
-      console.log('user disconnect: ', user.socketId);
+      //console.log('user disconnect: ', user.socketId);
       const index = this.contactsInfo.findIndex((value: ContactInfo) => value.socketId === user.socketId)
-      console.log(index);
+      //console.log(index);
       this.deleteBadgeFromList(index);
       this.deleteContactFromList(index);
 
@@ -61,7 +61,7 @@ export class SidebarComponent implements OnInit {
     this._socket.listen('user connect').subscribe((user: any) => {
       const socketId = user.socketId;
       const contact = user.data;
-      console.log('user conect: ', user.socketId);
+      //console.log('user conect: ', user.socketId);
       this.contactsInfo.push(new ContactInfo(contact.uid, contact.displayName, contact.email, 'online', contact.photoURL, socketId));
       this.badgeList[socketId] = 0;
     })
@@ -75,7 +75,7 @@ export class SidebarComponent implements OnInit {
         this.contactsInfo.push(contactInfo);
         this.badgeList[contactInfo.socketId] = 0;
       }
-      console.log('from service: ', this.contactsInfo.map((value: ContactInfo) => value.socketId));
+      //console.log('from service: ', this.contactsInfo.map((value: ContactInfo) => value.socketId));
     },
       err => console.log('load contacts error: ', err))
   }

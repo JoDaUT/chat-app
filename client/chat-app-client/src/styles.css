@@ -7,6 +7,9 @@
     --font1: #636363;
     --font2: #a0a0a0;
     --warn: #ee3939;
+    --yellow: #E69B30;
+    --red: rgb(200, 15, 15);
+    --green: green;
     --font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 *{
@@ -42,6 +45,6 @@ background: var(--font1);
 }
 
 .mat-badge-content {
-    background: #E69B30;
+    background: var(--yellow);
     color: white;
 }

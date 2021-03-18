@@ -1,0 +1,41 @@
+<!-- Button trigger modal -->
+<button type="button" id="launch-modal" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Llamada entrante</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <mat-card-header>
+                    <div mat-card-avatar *ngIf="entryCall.avatar">
+                        <img mat-card-avatar src="{{entryCall.avatar}}">
+                        <div *ngIf="entryCall.status==='online' || entryCall.status==='offline'" class="badge"
+                            [ngClass]="{'online': entryCall.status==='online', 'offline': entryCall.status==='offline'}">
+                        </div>
+                    </div>
+                    <div mat-card-avatar *ngIf="!entryCall.avatar">
+                        <img mat-card-avatar src="assets/icons/default-avatar.svg">
+                        <div *ngIf="entryCall.status==='online' || entryCall.status==='offline'" class="badge"
+                            [ngClass]="{'online': entryCall.status==='online', 'offline': entryCall.status==='offline'}">
+                        </div>
+                    </div>
+                    <mat-card-subtitle>{{entryCall.title}}</mat-card-subtitle>
+                </mat-card-header>
+            </div>
+            <div class="modal-footer">
+                <button type="button" mat-card-avatar class="modal-button" (click)="answerCall()"><img mat-card-avatar
+                        src="assets/icons/call.svg"></button>
+                <button type="button" mat-card-avatar class="modal-button" (click)="denegateCall()"><img mat-card-avatar
+                        src="assets/icons/call-ended.svg"></button>
+            </div>
+        </div>
+    </div>
+</div>
