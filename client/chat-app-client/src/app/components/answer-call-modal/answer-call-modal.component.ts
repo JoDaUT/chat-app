@@ -13,20 +13,26 @@ declare var Peer:any;
 export class AnswerCallModalComponent implements OnInit {
   public entryCall:ContactInfo;
   constructor(private _peer:PeerService, private _router:Router) {
-    this.entryCall = new ContactInfo('','juan','tu amigo','','assets/icons/default-avatar.svg','');;
+    this.entryCall = new ContactInfo('','','','','assets/icons/default-avatar.svg','');;
     
   }
 
   ngOnInit(): void {
     this.createConn();
     this.listenConn();
+
   }
+  // listenAnswerDenegated() {
+  //   this._peer.getCallAllowed().subscribe( (res:boolean)=>{
+
+  //   })
+  // }
   public async createConn(){
     const peerId = await this._peer.createPeer();
     console.log({id: peerId});
   }
   public listenConn(){
-    this._peer.listenConnection().then( (incomingCallUserData:ContactInfo)=>{
+    this._peer.listenConnection().subscribe( (incomingCallUserData:ContactInfo)=>{
       console.log('INCOMING CALL FROM:', incomingCallUserData);
       this.entryCall = incomingCallUserData;
       this.showModal();
@@ -37,8 +43,17 @@ export class AnswerCallModalComponent implements OnInit {
     this._peer.sendDataFromIncomingConnection(true);
     this._router.navigate(['call']);
   }
-  public denegateCall(){
+  public async denegateCall(){
     console.log('denegate call')
+    const status = await this._peer.sendDataFromIncomingConnection(false);
+    console.log({status});
+    // const result = await this._peer.closeIncomingConnection();
+    // console.log({result});
+    
+    
+    //const result = await this._peer.closeIncomingConnection();
+    const res = await this._peer.listenClosedIncomingConnection();
+    console.log({res});
   }
   public showModal(){
     const modal = $('#exampleModal');

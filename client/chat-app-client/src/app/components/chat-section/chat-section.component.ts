@@ -12,6 +12,7 @@ import { SocketService } from 'src/app/services/socket-service/socket.service';
 import { PeerService } from '../../services/peer-service/peer.service';
 import { Router} from '@angular/router';
 declare var Peer:any;
+declare var $:any;
 @Component({
   selector: 'chat-section',
   templateUrl: './chat-section.component.html',
@@ -109,12 +110,24 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck  
     console.log('id from chat section: ',peerId)
     console.log('make conn with: ',this.contact._id);
     this._peer.makeConnection(this.contact._id, this.userCard).then( (answer:boolean)=>{
+      console.log({answer});
       if(answer){
-        this._router.navigate(['call']);
+        this.handleCallAllowed();
       }
       else{
-        console.log('call denegated');
+        this.handleCallDenegated();
       }
     })
+  }
+  public handleCallAllowed(){
+    this._router.navigate(['call']);
+  }
+  public handleCallDenegated(){
+    $('#callDenegated').modal('show');
+  }
+  public async closeConnection(){
+    //const result = await this._peer.closeOutComingConnection();
+    //console.log({result});
+    this._peer.listenClosedOutcomingConnection().then( res=>console.log(res));
   }
 }
