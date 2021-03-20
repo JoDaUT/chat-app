@@ -1,67 +1,54 @@
 import { Component, OnInit } from '@angular/core';
-import { Router} from '@angular/router';
+import { Router } from '@angular/router';
 //import * as $ from 'jquery';
-declare var $ : any;
+declare const $: any;
 import ContactInfo from 'src/app/models/ContactInfo';
 import { PeerService } from '../../services/peer-service/peer.service';
-declare var Peer:any;
+declare const Peer: any;
 @Component({
   selector: 'answer-call-modal',
   templateUrl: './answer-call-modal.component.html',
   styleUrls: ['./answer-call-modal.component.css']
 })
 export class AnswerCallModalComponent implements OnInit {
-  public entryCall:ContactInfo;
-  constructor(private _peer:PeerService, private _router:Router) {
-    this.entryCall = new ContactInfo('','','','','assets/icons/default-avatar.svg','');;
-    
+  public entryCall: ContactInfo;
+  constructor(private _peer: PeerService, private _router: Router) {
+    this.entryCall = new ContactInfo('', '', '', '', 'assets/icons/default-avatar.svg', '');;
+
   }
 
   ngOnInit(): void {
-    this.createConn();
-    this.listenConn();
-
+    this.listenConnection();
   }
-  // listenAnswerDenegated() {
-  //   this._peer.getCallAllowed().subscribe( (res:boolean)=>{
-
-  //   })
-  // }
-  public async createConn(){
+  public async createConn() {
     const peerId = await this._peer.createPeer();
-    console.log({id: peerId});
+    console.log({ id: peerId });
   }
-  public listenConn(){
-    this._peer.listenConnection().subscribe( (incomingCallUserData:ContactInfo)=>{
-      console.log('INCOMING CALL FROM:', incomingCallUserData);
-      this.entryCall = incomingCallUserData;
-      this.showModal();
-    })
+  public listenConnection() {
+    this._peer.receiveConnection().subscribe((id: string) => {
+      this._peer.listenUserData(id).subscribe((incomingCallUserData: ContactInfo) => {
+        console.log('INCOMING CALL FROM:', incomingCallUserData);
+        this.entryCall = incomingCallUserData;
+        this.showModal();
+      })
+    });
   }
-  public answerCall(){
+  public answerCall() {
     console.log('answer call')
-    this._peer.sendDataFromIncomingConnection(true);
+    this._peer.sendStatus(this.entryCall._id, true);
     this._router.navigate(['call']);
   }
-  public async denegateCall(){
+  public async denegateCall() {
     console.log('denegate call')
-    const status = await this._peer.sendDataFromIncomingConnection(false);
-    console.log({status});
-    // const result = await this._peer.closeIncomingConnection();
-    // console.log({result});
-    
-    
-    //const result = await this._peer.closeIncomingConnection();
-    const res = await this._peer.listenClosedIncomingConnection();
-    console.log({res});
+    this._peer.sendStatus(this.entryCall._id, false);
   }
-  public showModal(){
+  public showModal() {
     const modal = $('#exampleModal');
     if (modal) {
       modal.modal('show');
     }
   }
-  public hideModal(){
+  public hideModal() {
     const modal = $('#exampleModal');
     if (modal) {
       modal.modal('hide');

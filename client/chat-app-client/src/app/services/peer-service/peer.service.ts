@@ -16,8 +16,8 @@ export class PeerService {
   private userCard: ContactInfo;
   private _outConnection: any;
   private _incomeConnection: any;
-  // public callAllowed:Observable<boolean>;
-  // private callAllowedsource: BehaviorSubject<any>;
+  private _conn = {};
+
   constructor(private _auth: AuthService){
     this.firebaseUser = this._auth.getUser();
     this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, '', this.firebaseUser.photoURL, '');
@@ -25,84 +25,94 @@ export class PeerService {
     this._outConnection = undefined;
     this._incomeConnection = undefined;
     this.id = undefined;
-    // this.callAllowedsource = new BehaviorSubject(undefined);
-    // this.callAllowed = this.callAllowedsource.asObservable();
+
+    this.createPeer();
   }
-  createPeer(): Promise<string> {
-    return new Promise((resolve) => {
+  createPeer() {
       this._peer = new Peer(this.userCard._id);
       this._peer.on('open', (id) => {
         this.id = id;
-        resolve(id);
       })
-    })
-
   }
-  async sendDataFromIncomingConnection(answer: any) {
-    console.log({ answer })
-    console.log('incomeConn', this._incomeConnection)
-    this._incomeConnection.send(answer);
-    return 0;
-  }
-  sendDataFromOutcomingConnection(answer: any) {
-    this._outConnection.send(answer);
-  }
-  listenConnection(): Observable<any> {
-    return new Observable( (Subscriber)=>{
-      this._peer.on('connection', (conn) => {
-        this._incomeConnection = conn;
-        conn.on('data', function (data) {
-          Subscriber.next(data);
-        });
-      });
-    })
-  }
-
-  makeConnection(id: string, data: any) {
+  makeConnection(id: string):Promise<Boolean>{
     return new Promise((resolve) => {
-      if(id !== this._outConnection?.id){
-        this._outConnection = this._peer.connect(id);
-        console.log('entre a make conn');
-        this._outConnection.on('open', () => {
-          console.log('connection open')
-          this._outConnection.send(data);
-          console.log('data sended');
+        const connection = this._peer.connect(id);
+        connection.on('open', ()=>{
+          this._conn[id] = connection;
+          resolve(true);
         })
-
+    })
+  }
+  
+  // listenFromConnection(id:string):Observable<any>{
+  //     if(this._conn[id]){
+  //       return new Observable( (Subscriber)=>{
+  //         this._conn[id].on('data', (data:ContactInfo) => {
+  //           Subscriber.next(data);
+  //         })
+  //       })
+  //     }
+  //     else{
+  //       throw new Error('listenFromConnection: Connection not existed');
+  //     }
+  // }
+  listenUserData(id:string):Observable<any>{
+    if(this._conn[id]){
+      return new Observable( (Subscriber)=>{
+        this._conn[id].on('data', (userData:ContactInfo) => {
+          Subscriber.next(userData);
+        })
+      })
+    }
+    else{
+      throw new Error('listenFromConnection: Connection not existed');
+    }
+  }
+  listenStatus(id:string):Promise<boolean>{
+    return new Promise( (resolve, reject)=>{
+      if(this._conn[id]){
+        this._conn[id].on('data', (status:boolean) => {
+          resolve(status);
+        })
       }
       else{
-        console.log('entre al else');
-        this._outConnection.send(data);
+        reject(new Error('listenFromConnection: Connection not existed'));
       }
-      this._outConnection.on('data', (data) => {
-        console.log('data from conn: ', data);
-        resolve(data);
-      })
-
     })
   }
-
-  public listenClosedIncomingConnection():Promise<string>{
-    return new Promise((resolve)=>{
-      this._incomeConnection.on('close', ()=>{
-        resolve('incoming connection closed');
+  receiveConnection(){
+    return new Observable( (Subscriber)=>{
+      this._peer.on('connection', (conn)=>{
+          console.log(conn);
+          const id = conn.peer;
+          if(id){
+            console.log('SI ES CONN.ID: ',id);
+            this._conn[id] = conn;
+            Subscriber.next(id);
+          }
+          else{
+            throw new Error('conn.id no tiene el id');
+          }
       })
-    });
+    })
   }
-  public listenClosedOutcomingConnection():Promise<string>{
-    return new Promise((resolve)=>{
-      this._outConnection.on('close', ()=>{
-        resolve('outcoming connection closed');
-      })
-    });
+  sendUserData(id:string, userData:ContactInfo){
+    this.sendToConnection(id, userData);
   }
-  public async closeOutComingConnection(){
-    this._outConnection.close();
-    return 'outcoming connection closed';
+  sendStatus(id:string, status:boolean){
+    this.sendToConnection(id, status);
   }
-  public async  closeIncomingConnection(){
-    this._incomeConnection.close();
-    //console.log('incoming connection closed');
-    return 'incoming connection closed';
+  private sendToConnection(id:string, data:any){
+    if(this._conn[id]){
+      this._conn[id].send(data);
+    }
+    else{
+      throw new Error('sendToConnection: Connection not existed');
+    }
+  }
+  closeConnection(id:string){
+    if(this._conn[id]){
+      this._conn[id].close();
+    }
   }
 }
