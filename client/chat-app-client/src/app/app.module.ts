@@ -39,6 +39,7 @@ import { environment } from '../environments/environment';
 import { HttpClientModule } from '@angular/common/http';
 import { AnswerCallModalComponent } from './components/answer-call-modal/answer-call-modal.component';
 import { CallComponent } from './pages/call/call.component';
+import { TimerPipe } from './pipes/timer.pipe';
 
 //const config: SocketIoConfig = { url: 'http://localhost:3000/chat', options: {withCredentials: true} };
 
@@ -53,7 +54,8 @@ import { CallComponent } from './pages/call/call.component';
     LoginComponent,
     ChatAppComponent,
     AnswerCallModalComponent,
-    CallComponent
+    CallComponent,
+    TimerPipe
   ],
   imports: [
     AppRoutingModule,

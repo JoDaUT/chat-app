@@ -36,6 +36,7 @@ export class AnswerCallModalComponent implements OnInit {
   public answerCall() {
     console.log('answer call')
     this._peer.sendStatus(this.entryCall._id, true);
+    this._peer.setStreamSettings(this.entryCall._id, this.entryCall, false);
     this._router.navigate(['call']);
   }
   public async denegateCall() {
