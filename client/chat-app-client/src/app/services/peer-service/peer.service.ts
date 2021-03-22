@@ -100,7 +100,22 @@ export class PeerService {
       this._conn[id].close();
     }
   }
-
+  // sendEndCallFlag(id:string, flag:boolean){
+  //   this.sendToConnection(id, flag);
+  // }
+  // listenEndCallFlag(id: string): Promise<boolean> {
+  //   return new Promise((resolve, reject) => {
+  //     if (this._conn[id]) {
+  //       this._conn[id].on('data', (status: boolean) => {
+  //         resolve(status);
+  //       })
+  //     }
+  //     else {
+  //       reject(new Error('listenFromConnection: Connection not existed'));
+  //     }
+  //   })
+  // }
+  
   setStreamSettings(id: string, contact: ContactInfo, sender: boolean) {
     this._streamInfo = { id, contact, sender };
   }

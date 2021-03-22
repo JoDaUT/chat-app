@@ -23,6 +23,10 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
   }
   ngAfterViewInit(): void {
     this.initLocalStream();
+    this._peer.listenStatus(this.contact._id).then((value:boolean)=>{
+      console.log('recibir flag call ended');
+      this.endCall(false);
+    })
   }
 
   ngOnInit(): void {
@@ -75,9 +79,11 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
   stopTimer() {
     this.stopwatch.stop();
   }
-  endCall() {
+  endCall(sendStatus:boolean = true) {
     this.stopTimer();
-    
+    if(sendStatus){
+      this._peer.sendStatus(this.contact._id, false);
+    }
     this._router.navigate(["/chat", "1"]);
   }
   stopStreamedVideo(video:ElementRef) {
