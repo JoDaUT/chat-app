@@ -7,13 +7,17 @@ module.exports.respond = function (socket, io) {
 
     socket.on('user', user => {
         if (user) {
-            socket.emit('get users', chatService.getArrayOfAllUsers());
+            socket.emit('get users', chatService.getArrayOfAllUsers().filter( (value)=>value.socketId !== socket.id));
             chatService.addUser(new User(socket.id, user))
             console.log('user registered: ', chatService.getUserById(socket.id).socketId);
             socket.broadcast.emit('user connect', chatService.getUserById(socket.id));
             socket.emit('get my user', chatService.getUserById(socket.id));
             
         }
+    })
+    socket.on('req get users',()=>{
+        console.log('req get users');
+        socket.emit('res get users', chatService.getArrayOfAllUsers().filter( (value)=>value.socketId !== socket.id));
     })
     socket.on('disconnect', () => {
         console.log('user disconnected ' + socket.id);

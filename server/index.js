@@ -48,14 +48,15 @@ const authRouter = require('./routes/auth-router')
 const cors = require('cors');
 app.use('/', cors(), authRouter);
 
+//NO BORRAR
 
-//app.use(exp.static(path.join(__dirname, 'public', 'dist','chat-app-client')));
-// app.get('/', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'public', 'dist', 'chat-app-client', 'index.html'));
-// });
-// app.get('/', (req,res)=>{
-//     res.send('sucess');
-// })
+app.use(exp.static(path.join(__dirname, 'public', 'dist','chat-app-client')));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dist', 'chat-app-client', 'index.html'));
+});
+app.get('/', (req,res)=>{
+    res.send('sucess');
+})
 
 http.listen(3000, () => {
     console.log(`listening on ${url}`);
