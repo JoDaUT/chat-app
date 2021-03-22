@@ -124,6 +124,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
   }
   public handleCallAllowed() {
     this._peer.setStreamSettings(this.contact._id, this.contact, true);
+    //this._socket.disconnect();
     this._router.navigate(['call']);
   }
   public handleCallDenegated() {

@@ -1,21 +1,25 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { PeerService } from '../../services/peer-service/peer.service';
 import ContactInfo from '../../models/ContactInfo';
-import { Stopwatch } from 'src/app/components/helpers/Stopwatch';
+import { Stopwatch } from 'src/app/helpers/Stopwatch';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-call',
   templateUrl: './call.component.html',
   styleUrls: ['./call.component.css']
 })
-export class CallComponent implements OnInit, AfterViewInit {
+export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
   @ViewChild('contactVideo') contactVideo: ElementRef;
   streamInfo: { id: string; contact: ContactInfo, sender: boolean };
   contact: ContactInfo;
   public stopwatch: Stopwatch;
-  constructor(private _peer: PeerService) {
+  constructor(private _peer: PeerService, private _router:Router) {
     this.stopwatch = new Stopwatch();
-
+  }
+  ngOnDestroy(): void {
+    this._peer.closeCall(this.contact._id);
+    this.stopStreamedVideo(this.contactVideo)
   }
   ngAfterViewInit(): void {
     this.initLocalStream();
@@ -73,6 +77,18 @@ export class CallComponent implements OnInit, AfterViewInit {
   }
   endCall() {
     this.stopTimer();
+    
+    this._router.navigate(["/chat", "1"]);
+  }
+  stopStreamedVideo(video:ElementRef) {
+    const videoElem = video.nativeElement;
+    const stream = videoElem.srcObject;
+    const tracks = stream.getTracks();
+  
+    tracks.forEach(function(track) {
+      track.stop();
+    });
+    videoElem.srcObject = null;
   }
 
 }

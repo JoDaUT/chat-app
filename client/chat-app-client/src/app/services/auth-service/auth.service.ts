@@ -37,7 +37,7 @@ export class AuthService {
         this._userCredentials = res.credential;
         this._accessToken = this._userCredentials.accessToken;
         this._userSource.next(res.user);
-        this._router.navigate(["/chat"]);
+        this._router.navigate(["/chat", "0"]);
         this.getUser().getIdToken().then(token => {
           this._tokenId = token;
         }, err => {

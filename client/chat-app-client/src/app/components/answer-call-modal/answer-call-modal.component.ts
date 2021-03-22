@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 declare const $: any;
 import ContactInfo from 'src/app/models/ContactInfo';
 import { PeerService } from '../../services/peer-service/peer.service';
+import { SocketService } from '../../services/socket-service/socket.service';
 declare const Peer: any;
 @Component({
   selector: 'answer-call-modal',
@@ -12,9 +13,10 @@ declare const Peer: any;
 })
 export class AnswerCallModalComponent implements OnInit {
   public entryCall: ContactInfo;
-  constructor(private _peer: PeerService, private _router: Router) {
+  constructor(private _peer: PeerService, 
+              private _router: Router,
+              private _socket:SocketService) {
     this.entryCall = new ContactInfo('', '', '', '', 'assets/icons/default-avatar.svg', '');;
-
   }
 
   ngOnInit(): void {
@@ -37,6 +39,7 @@ export class AnswerCallModalComponent implements OnInit {
     console.log('answer call')
     this._peer.sendStatus(this.entryCall._id, true);
     this._peer.setStreamSettings(this.entryCall._id, this.entryCall, false);
+    //this._socket.disconnect();
     this._router.navigate(['call']);
   }
   public async denegateCall() {

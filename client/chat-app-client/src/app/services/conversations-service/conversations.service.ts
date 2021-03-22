@@ -99,8 +99,15 @@ export class ConversationsService {
   receiveNewMessages(contact: ContactInfo): Observable<any> {
     return this._socket.listen('receive private message');
   }
-  getContacts(): Observable<any> {
-    return this._socket.listen('get users');
+  getContacts(stat:number = 0): Observable<any> {
+    if(stat===0){
+      return this._socket.listen('get users');
+    }
+    else if(stat ===1){
+      this._socket.emit('req get users', undefined);
+      console.log('entre a else stat 1');
+      return this._socket.listen('res get users');
+    }
   }
   handleContactConnection() {
     this._socket.listen('user connect').subscribe((user: any) => {

@@ -8,6 +8,9 @@ import { AuthService } from '../auth-service/auth.service';
   providedIn: 'root'
 })
 export class SocketService{
+  disconnect() {
+    this._socket.disconnect();
+  }
   public api:{url:string};
   private _socket:any;
 

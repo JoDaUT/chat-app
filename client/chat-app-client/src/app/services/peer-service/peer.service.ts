@@ -15,6 +15,7 @@ export class PeerService {
   private firebaseUser: any;
   private userCard: ContactInfo;
   private _conn = {};
+  private _calls = {};
   private _streamInfo: { id: string; contact: ContactInfo; sender: boolean };
 
   constructor(private _auth: AuthService) {
@@ -107,32 +108,31 @@ export class PeerService {
     return this._streamInfo;
   }
   sendStream(id: string, stream: any) {
-    this._conn[id] = this._peer.call(id, stream);
+    this._calls[id] = this._peer.call(id, stream);
     console.log('send stream from caller', stream);
   }
   receiveStream(id: string):Promise<any> {
     return new Promise( (resolve)=>{
-      this._conn[id].on('stream', (remoteStream)=>{
+      this._calls[id].on('stream', (remoteStream)=>{
         console.log('receiveStream from service: ',remoteStream);
         resolve(remoteStream);
       })
     })
-    // return new Observable((Subscriber) => {
-    //   this._conn[id].on('stream', (remoteStream) => {
-    //     console.log('receiveStream from service: ', remoteStream);
-    //     Subscriber.next(remoteStream);
-    //   })
-    // })
   }
   listenStreamCall(id: string, stream: any) {
     return new Promise( (resolve)=>{
-
       this._peer.on('call', (conn) => {
         console.log('call detected');
-        this._conn[id] = conn;
-        this._conn[id].answer(stream);
+        this._calls[id] = conn;
+        this._calls[id].answer(stream);
         resolve(true);
       })
     })
+  }
+  closeCall(id:string){
+    if(this._calls[id]){
+      this._calls[id].close();
+      //delete this._calls[id];
+    }
   }
 }

@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 import ContactInbox from '../../models/ContactInbox';
 import { Observable } from 'rxjs';
 import { SocketService } from 'src/app/services/socket-service/socket.service';
+import { ActivatedRoute } from '@angular/router';
 
 
 
@@ -19,13 +20,24 @@ export class SidebarComponent implements OnInit {
 
   @Input() public contactsInfo: Array<ContactInfo>;
   @Output() public contactSelected = new EventEmitter<ContactInfo>();
+  stat: number;
   constructor(private _conversationsService: ConversationsService,
-    private _socket: SocketService) {
+              private _socket: SocketService,
+              private activatedRoute: ActivatedRoute) {
     this.contactsInfo = new Array<ContactInfo>();
   }
 
   ngOnInit(): void {
-    this.loadContacts();
+    console.log('Sidebar: ngOnInit');
+    this.activatedRoute.params.subscribe(params => {
+      console.log('stat original: ',params['stat']);
+      this.stat = Number(params['stat']);
+      console.log({stat:this.stat});
+      if(Number.isNaN(this.stat)){
+        this.stat = 0;
+      }
+      this.loadContacts();
+    });
     this.handleContactDisconnection();
     this.handleContactConnection();
     this.handleMessageNotification();
@@ -34,14 +46,13 @@ export class SidebarComponent implements OnInit {
   onSubmit(form: NgForm): void {
     console.log('search form send');
   }
-  getMyUser(): Observable<any> {
-    return this._socket.listen('get my user');
-  }
+  // getMyUser(): Observable<any> {
+  //   this._socket.emit('req get my user', undefined);
+  //   return this._socket.listen('res get my user');
+  // }
   handleContactDisconnection() {
     this._socket.listen('user disconnect').subscribe((user: any) => {
-      //console.log('user disconnect: ', user.socketId);
       const index = this.contactsInfo.findIndex((value: ContactInfo) => value.socketId === user.socketId)
-      //console.log(index);
       this.deleteBadgeFromList(index);
       this.deleteContactFromList(index);
 
@@ -61,13 +72,13 @@ export class SidebarComponent implements OnInit {
     this._socket.listen('user connect').subscribe((user: any) => {
       const socketId = user.socketId;
       const contact = user.data;
-      //console.log('user conect: ', user.socketId);
       this.contactsInfo.push(new ContactInfo(contact.uid, contact.displayName, contact.email, 'online', contact.photoURL, socketId));
       this.badgeList[socketId] = 0;
     })
   }
   loadContacts() {
-    this._conversationsService.getContacts().subscribe((contacts: any[]) => {
+    this._conversationsService.getContacts(this.stat).subscribe((contacts: any[]) => {
+      console.log({contacts});
       for (let item of contacts) {
         const socketId = item.socketId;
         const contact = item.data;
@@ -75,7 +86,6 @@ export class SidebarComponent implements OnInit {
         this.contactsInfo.push(contactInfo);
         this.badgeList[contactInfo.socketId] = 0;
       }
-      //console.log('from service: ', this.contactsInfo.map((value: ContactInfo) => value.socketId));
     },
       err => console.log('load contacts error: ', err))
   }

@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Stopwatch } from '../components/helpers/Stopwatch';
+import { Stopwatch } from '../helpers/Stopwatch';
 
 @Pipe({
   name: 'timer'

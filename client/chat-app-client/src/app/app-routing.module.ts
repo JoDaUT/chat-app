@@ -8,12 +8,12 @@ import { AngularFireAuthGuard, redirectUnauthorizedTo,redirectLoggedInTo} from '
 import { CallComponent } from './pages/call/call.component';
 
 const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login']);
-const redirectLoggedInToChat = () => redirectLoggedInTo(['chat']);
+const redirectLoggedInToChat = () => redirectLoggedInTo(['chat/',0]);
 
 const routes: Routes = [
   {path:"", component:LoginComponent, canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectLoggedInToChat }},
   {path:"login", redirectTo:'/LoginComponent', canActivate:[AngularFireAuthGuard], data:{authGuardPipe: redirectLoggedInToChat}},
-  {path:"chat", component:ChatAppComponent, canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }},
+  {path:"chat/:stat", component:ChatAppComponent, canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }},
   {path:"call", component:CallComponent, canActivate: [AngularFireAuthGuard], data: { authGuardPipe: redirectUnauthorizedToLogin }},
   {path:"**", component:LoginComponent}
 ];
