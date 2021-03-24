@@ -41,11 +41,11 @@ export class AuthService {
         this.getUser().getIdToken().then(token => {
           this._tokenId = token;
         }, err => {
-          console.log('get token error: ', err)
+          console.error('get token error: ', err)
         })
 
       })
-      .catch(err => console.log(err));
+      .catch(err => console.error(err));
   }
   connectToAPI() {
     const httpOptions = {
@@ -59,7 +59,7 @@ export class AuthService {
     this.auth.signOut().then(res => {
       this._router.navigate(["/"]);
     }, err => {
-      console.log(err);
+      console.error(err);
       this._router.navigate(["/"]);
     })
     return true;

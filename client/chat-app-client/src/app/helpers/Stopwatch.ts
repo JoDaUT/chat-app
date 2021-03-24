@@ -29,7 +29,6 @@ export class Stopwatch{
                 this.minutes = 0;
                 this.hours++;
             }
-            console.log(`${this.minutes}:${this.seconds}`)
         }, this._interval);
     }
 }

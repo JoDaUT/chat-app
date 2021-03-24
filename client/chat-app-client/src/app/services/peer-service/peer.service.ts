@@ -2,6 +2,7 @@ import { Injectable, OnInit } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
 
 import ContactInfo from 'src/app/models/ContactInfo';
+import { StreamInfo } from 'src/app/models/StreamInfo';
 import { AuthService } from '../auth-service/auth.service';
 
 declare const Peer: any;
@@ -16,14 +17,14 @@ export class PeerService {
   private userCard: ContactInfo;
   private _conn = {};
   private _calls = {};
-  private _streamInfo: { id: string; contact: ContactInfo; sender: boolean };
+  private _streamInfo: StreamInfo;
 
   constructor(private _auth: AuthService) {
     this.firebaseUser = this._auth.getUser();
     this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, '', this.firebaseUser.photoURL, '');
     this._peer = undefined;
     this.id = undefined;
-
+    this._streamInfo = new StreamInfo('', undefined, false, false)
     this.createPeer();
   }
   createPeer() {
@@ -71,7 +72,6 @@ export class PeerService {
         console.log(conn);
         const id = conn.peer;
         if (id) {
-          console.log('SI ES CONN.ID: ', id);
           this._conn[id] = conn;
           Subscriber.next(id);
         }
@@ -116,20 +116,20 @@ export class PeerService {
   //   })
   // }
   
-  setStreamSettings(id: string, contact: ContactInfo, sender: boolean) {
-    this._streamInfo = { id, contact, sender };
+  setStreamSettings(streamInfo:StreamInfo) {
+    this._streamInfo = streamInfo;
   }
   getStreamSettings() {
     return this._streamInfo;
   }
   sendStream(id: string, stream: any) {
     this._calls[id] = this._peer.call(id, stream);
-    console.log('send stream from caller', stream);
+    // console.log('send stream from caller', stream);
   }
   receiveStream(id: string):Promise<any> {
     return new Promise( (resolve)=>{
       this._calls[id].on('stream', (remoteStream)=>{
-        console.log('receiveStream from service: ',remoteStream);
+        // console.log('receiveStream from service: ',remoteStream);
         resolve(remoteStream);
       })
     })

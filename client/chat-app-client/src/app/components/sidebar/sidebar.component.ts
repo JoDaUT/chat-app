@@ -30,9 +30,7 @@ export class SidebarComponent implements OnInit {
   ngOnInit(): void {
     console.log('Sidebar: ngOnInit');
     this.activatedRoute.params.subscribe(params => {
-      console.log('stat original: ',params['stat']);
       this.stat = Number(params['stat']);
-      console.log({stat:this.stat});
       if(Number.isNaN(this.stat)){
         this.stat = 0;
       }

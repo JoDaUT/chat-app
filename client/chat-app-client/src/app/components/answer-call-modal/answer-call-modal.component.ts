@@ -5,6 +5,7 @@ declare const $: any;
 import ContactInfo from 'src/app/models/ContactInfo';
 import { PeerService } from '../../services/peer-service/peer.service';
 import { SocketService } from '../../services/socket-service/socket.service';
+import { StreamInfo } from '../../models/StreamInfo';
 declare const Peer: any;
 @Component({
   selector: 'answer-call-modal',
@@ -24,7 +25,7 @@ export class AnswerCallModalComponent implements OnInit {
   }
   public async createConn() {
     const peerId = await this._peer.createPeer();
-    console.log({ id: peerId });
+    // console.log({ id: peerId });
   }
   public listenConnection() {
     this._peer.receiveConnection().subscribe((id: string) => {
@@ -38,22 +39,23 @@ export class AnswerCallModalComponent implements OnInit {
   public answerCall() {
     console.log('answer call')
     this._peer.sendStatus(this.entryCall._id, true);
-    this._peer.setStreamSettings(this.entryCall._id, this.entryCall, false);
+    const streamInfo = new StreamInfo(this.entryCall._id, this.entryCall, false, true);
+    this._peer.setStreamSettings(streamInfo);
     //this._socket.disconnect();
     this._router.navigate(['call']);
   }
   public async denegateCall() {
-    console.log('denegate call')
+    // console.log('denegate call')
     this._peer.sendStatus(this.entryCall._id, false);
   }
   public showModal() {
-    const modal = $('#exampleModal');
+    const modal = $('#answerCallModal');
     if (modal) {
       modal.modal('show');
     }
   }
   public hideModal() {
-    const modal = $('#exampleModal');
+    const modal = $('#answerCallModal');
     if (modal) {
       modal.modal('hide');
     }

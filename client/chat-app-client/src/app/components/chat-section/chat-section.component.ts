@@ -12,6 +12,7 @@ import { SocketService } from 'src/app/services/socket-service/socket.service';
 import { PeerService } from '../../services/peer-service/peer.service';
 import { Router } from '@angular/router';
 // import { Subscription } from 'rxjs';
+import { StreamInfo } from '../../models/StreamInfo';
 declare const Peer: any;
 declare const $: any;
 @Component({
@@ -49,11 +50,15 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
 
   ngOnInit(): void {
     this.firebaseUser = this._auth.getUser();
-    this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, '', this.firebaseUser.photoURL, '');
+    this._socket.emit('req get my user', undefined);
+    this._socket.listen('res get my user').subscribe( myUser=>{
+      const {socketId} = myUser;
+      this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
+    })
 
     this.handleContactSelected();
     this._conversationsService.currentMessages.subscribe(msg => {
-      console.log('get new messages');
+      // console.log('get new messages');
       this.messages = msg;
     })
 
@@ -66,7 +71,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
   handleContactSelected() {
     this._contactSelectedService.currentContact.subscribe(item => {
       this.contact = item;
-      console.log('contact selected: ', this.contact.socketId);
+      console.log('contact selected: ', this.contact);
     })
   }
   handleSelection(event: any) {
@@ -91,7 +96,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
       (data: any) => {
         const senderId: string = data.socketId;
         const message: ChatMessage = data.msg;
-        console.log('new message:', message)
+        // console.log('new message:', message)
         this.messages.push(message);
       }
     )
@@ -107,7 +112,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
   }
   async makeACall() {
     const peerId = this._peer.id;
-    console.log('id from chat section: ', peerId)
+    // console.log('id from chat section: ', peerId)
     console.log('make conn with: ', this.contact._id);
     const connectionEstablished = await this._peer.makeConnection(this.contact._id)
     console.log({ answer: connectionEstablished });
@@ -123,7 +128,10 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
     }
   }
   public handleCallAllowed() {
-    this._peer.setStreamSettings(this.contact._id, this.contact, true);
+    // const streamInfo = new StreamInfo(this.contact._id, this.contact, true, true);
+    console.log('to contact: ',this.contact);
+    const streamInfo = new StreamInfo(this.contact._id, this.contact, true, true);
+    this._peer.setStreamSettings(streamInfo);
     //this._socket.disconnect();
     this._router.navigate(['call']);
   }
