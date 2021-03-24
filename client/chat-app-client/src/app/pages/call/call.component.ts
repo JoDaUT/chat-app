@@ -1,11 +1,15 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { PeerService } from '../../services/peer-service/peer.service';
+import { CallService } from '../../services/call-service/call.service';
 import ContactInfo from '../../models/ContactInfo';
 import { Stopwatch } from 'src/app/helpers/Stopwatch';
 import { Router } from '@angular/router';
 import { StreamInfo } from '../../models/StreamInfo';
 import { SocketService } from '../../services/socket-service/socket.service';
-import { redirectLoggedInTo } from '@angular/fire/auth-guard';
+import { ContactSelectedService } from 'src/app/services/contact-selected-service/contact-selected.service';
+import { AuthService } from 'src/app/services/auth-service/auth.service';
+import { Subscription } from 'rxjs';
+
+declare const $:any;
 
 @Component({
   selector: 'app-call',
@@ -14,42 +18,62 @@ import { redirectLoggedInTo } from '@angular/fire/auth-guard';
 })
 export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
   @ViewChild('contactVideo') contactVideo: ElementRef;
-  streamInfo: StreamInfo;
+  streamInfo: StreamInfo | undefined;
   contact: ContactInfo;
   public stopwatch: Stopwatch;
   stream: MediaStream;
-  constructor(private _peer: PeerService, 
+  userCard: ContactInfo;
+  firebaseUser: any;
+  getMyUserSubscription: Subscription;
+  contactSelectedSubscription: Subscription;
+  listenCallAnswerSubscription: Subscription;
+  endCallSignalSubscription: Subscription;
+  constructor(private _callService: CallService, 
               private _router:Router,
-              private _socket:SocketService) {
+              private _socket:SocketService,
+              private _contactSelectedService: ContactSelectedService,
+              private _auth: AuthService) {
     this.stopwatch = new Stopwatch();
   }
   ngOnDestroy(): void {
-    this._peer.closeCall(this.contact._id);
+    this._callService.closeCall(this.contact._id);
     this.stopStreamedVideo(this.contactVideo)
+    if(this.getMyUserSubscription) this.getMyUserSubscription.unsubscribe();
+    if(this.contactSelectedSubscription) this.contactSelectedSubscription.unsubscribe();
+    if(this.listenCallAnswerSubscription) this.listenCallAnswerSubscription.unsubscribe();
+    if(this.endCallSignalSubscription) this.endCallSignalSubscription.unsubscribe();
   }
   ngAfterViewInit(): void {
-    this.initLocalStream();
-    // this._peer.listenStatus(this.contact._id).then((value:boolean)=>{
-    //   console.log('recibir flag call ended');
-    //   this.endCall(false);
-    // })
-    this._socket.listen('end call signal').subscribe( (socketId:string)=>{
-      console.log('end call signal');
-      if(this.contact.socketId === socketId){
-        console.log('end call signal if');
-        this.endCall(false);
-      }
-    })
   }
 
   ngOnInit(): void {
-    this.streamInfo = this._peer.getStreamSettings();
-    console.log('streamInfo: ',this.streamInfo);
-    if (this.streamInfo) {
-      console.log(this.streamInfo)
-      this.contact = this.streamInfo.contact;
-    }
-    this.startTimer();
+    
+    this.streamInfo = this._callService.getStreamSettings();
+
+    this.firebaseUser = this._auth.getUser();
+    this._socket.emit('req get my user', undefined);
+    this.getMyUserSubscription = this._socket.listen('res get my user').subscribe( myUser=>{
+      const {socketId} = myUser;
+      this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
+      this.handleContactSelected();
+      console.log("streamInfo: ",this.streamInfo);
+      if(this.streamInfo.sender){
+        this.makeACall();
+        this.handleCallAnswer();
+      }
+      else{
+        this.contact = this.streamInfo.contact;
+        this.initCall();
+      }
+    })
+
+  }
+
+  handleContactSelected() {
+    this.contactSelectedSubscription = this._contactSelectedService.currentContact.subscribe(item => {
+      this.contact = item;
+      console.log('contact selected: ', this.contact);
+    })
   }
   initLocalStream() {
 
@@ -59,15 +83,15 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
       
       console.log('id: ', this.contact._id);
       if (sender) {
-        this._peer.sendStream(this.contact._id, stream);
+        this._callService.sendStream(this.contact._id, stream);
 
-        this._peer.receiveStream(this.contact._id).then((remoteStream) => {
+        this._callService.receiveStream(this.contact._id).then((remoteStream) => {
           this.addVideo(remoteStream, { muted: false });
         }).catch(err => console.error(err));
       }
       else {
-        this._peer.listenStreamCall(this.contact._id, stream).then((res) => {
-          this._peer.receiveStream(this.contact._id).then((remoteStream) => {
+        this._callService.listenStreamCall(this.contact._id, stream).then((res) => {
+          this._callService.receiveStream(this.contact._id).then((remoteStream) => {
             console.log('receive stream from caller', remoteStream);
             this.addVideo(remoteStream, { muted: false });
           }).catch(err => console.error(err));
@@ -79,8 +103,7 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
     }).catch(err => {
       console.error(err);
       alert('Media devices not available');
-      this._router.navigate(["/chat", "1"]);
-      // this.endCall(false);
+      this._router.navigate(["/chat",1]);
     });
   }
   addVideo(remoteStream: unknown, options: { muted: false }) {
@@ -98,19 +121,25 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
     this.stopwatch.stop();
   }
   endCall(sendStatus:boolean = true) {
-    this.stream.getAudioTracks().forEach(function (track) {
-        track.stop();
-    });
-    this.stream.getVideoTracks().forEach(function (track) { //in case... :)
-        track.stop();
-    });
+    const videoStreamTracks = this.stream?.getAudioTracks();
+    const audioStreamTracks = this.stream?.getVideoTracks();
+    if(videoStreamTracks){
+     videoStreamTracks.forEach(function (track) {
+          track.stop();
+      });
+    }
+    if(audioStreamTracks){
+      this.stream.getVideoTracks().forEach(function (track) { //in case... :)
+          track.stop();
+      });
+
+    }
     this.stopTimer();
     if(sendStatus){
-      //this._peer.sendStatus(this.contact._id, false);
       console.log('end call emit:',this.contact.socketId);
       this._socket.emit('end call', this.contact.socketId);
     }
-    this._router.navigate(["/chat", "1"]);
+    this._router.navigate(["/chat",1]);
   }
   stopStreamedVideo(video:ElementRef) {
     const videoElem = video.nativeElement;
@@ -124,5 +153,50 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
       videoElem.srcObject = null;
     }
   }
+  makeACall() {
+    const peerId = this._callService.id;
+    console.log('make conn with: ', this.contact._id);
+    const senderInfo = this.userCard;
+    const receiverId = this.contact.socketId;
+    const callOptions = {audio:true, video:true};
+    console.log({senderInfo, callOptions,receiverId});
+    this._socket.emit('send call request', {senderInfo, callOptions,receiverId});
+    
+    console.log('patito');
 
+  }
+  handleCallAnswer(){
+    this.listenCallAnswerSubscription = this._socket.listen('listen call answer').subscribe((callAllowed:boolean)=>{
+      console.log({callAllowed});
+      if (callAllowed) {
+        this.initCall();
+      }
+      else {
+        console.log('call denegated');
+        this.handleCallDenegated();
+      }
+    })
+    
+  }
+  public initCall() {
+    console.log('to contact: ',this.contact);
+
+    this.startTimer();
+
+    this.initLocalStream();
+
+    this.endCallSignalSubscription = this._socket.listen('end call signal').subscribe( (socketId:string)=>{
+      console.log('end call signal');
+      if(this.contact.socketId === socketId){
+        console.log('end call signal if');
+        this.endCall(false);
+      }
+    })
+  }
+  public handleCallDenegated() {
+    $('#callDenegated').modal('show');
+  }
+  async closeConnection(){
+    this._router.navigate(["/chat",1]);
+  }
 }

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 //import * as $ from 'jquery';
 declare const $: any;
 import ContactInfo from 'src/app/models/ContactInfo';
-import { PeerService } from '../../services/peer-service/peer.service';
+import { CallService } from '../../services/call-service/call.service';
 import { SocketService } from '../../services/socket-service/socket.service';
 import { StreamInfo } from '../../models/StreamInfo';
 declare const Peer: any;
@@ -14,7 +14,7 @@ declare const Peer: any;
 })
 export class AnswerCallModalComponent implements OnInit {
   public entryCall: ContactInfo;
-  constructor(private _peer: PeerService, 
+  constructor(private _peer: CallService, 
               private _router: Router,
               private _socket:SocketService) {
     this.entryCall = new ContactInfo('', '', '', '', 'assets/icons/default-avatar.svg', '');;
@@ -25,28 +25,33 @@ export class AnswerCallModalComponent implements OnInit {
   }
   public async createConn() {
     const peerId = await this._peer.createPeer();
-    // console.log({ id: peerId });
   }
   public listenConnection() {
-    this._peer.receiveConnection().subscribe((id: string) => {
-      this._peer.listenUserData(id).subscribe((incomingCallUserData: ContactInfo) => {
-        console.log('INCOMING CALL FROM:', incomingCallUserData);
-        this.entryCall = incomingCallUserData;
-        this.showModal();
-      })
-    });
+    this._socket.listen('listen call request').subscribe( (data:any)=>{
+      const senderInfo:ContactInfo = data.senderInfo;
+      const callOptions = data.callOptions;
+      console.log('listen Call Request: ',{senderInfo, callOptions});
+      this.entryCall = senderInfo;
+      this.showModal();
+    })
   }
   public answerCall() {
     console.log('answer call')
-    this._peer.sendStatus(this.entryCall._id, true);
+    const callAllowed = true;
+    const receiverId = this.entryCall.socketId;
+    console.log('send call answer',{callAllowed, receiverId});
+    this._socket.emit('send call answer', {callAllowed, receiverId});
+
     const streamInfo = new StreamInfo(this.entryCall._id, this.entryCall, false, true);
     this._peer.setStreamSettings(streamInfo);
-    //this._socket.disconnect();
     this._router.navigate(['call']);
   }
   public async denegateCall() {
-    // console.log('denegate call')
-    this._peer.sendStatus(this.entryCall._id, false);
+    //this._peer.sendStatus(this.entryCall._id, false);
+    const callAllowed = false;
+    const receiverId = this.entryCall.socketId;
+    this._socket.emit('send call answer', {callAllowed, receiverId});
+
   }
   public showModal() {
     const modal = $('#answerCallModal');

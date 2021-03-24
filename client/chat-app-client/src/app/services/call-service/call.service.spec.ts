@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { PeerService } from './peer.service';
+import { CallService } from './call.service';
 
 describe('PeerService', () => {
-  let service: PeerService;
+  let service: CallService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(PeerService);
+    service = TestBed.inject(CallService);
   });
 
   it('should be created', () => {

@@ -9,7 +9,7 @@ import { ContactSelectedService } from '../../services/contact-selected-service/
 // import * as Peer from 'peerjs';
 import firebase from 'firebase/app';
 import { SocketService } from 'src/app/services/socket-service/socket.service';
-import { PeerService } from '../../services/peer-service/peer.service';
+import { CallService } from '../../services/call-service/call.service';
 import { Router } from '@angular/router';
 // import { Subscription } from 'rxjs';
 import { StreamInfo } from '../../models/StreamInfo';
@@ -33,12 +33,12 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
   // public subscription = {};
   public inboxMessages: Array<ContactInbox>;
   @ViewChild('messageSection') messageSection: ElementRef;
-
+  
   constructor(private _contactSelectedService: ContactSelectedService,
     private _conversationsService: ConversationsService,
     private _auth: AuthService,
     private _socket: SocketService,
-    private _peer: PeerService,
+    private _peer: CallService,
     private _router: Router
   ) {
     this.messages = new Array<ChatMessage>();
@@ -58,7 +58,6 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
 
     this.handleContactSelected();
     this._conversationsService.currentMessages.subscribe(msg => {
-      // console.log('get new messages');
       this.messages = msg;
     })
 
@@ -84,6 +83,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
       const msgToSend: ChatMessage = new ChatMessage(this.messageToSend, new Date(), 1);
 
       //for the receiver itll be type 1
+      console.log({msgToSend, contact:this.contact});
       this._conversationsService.sendMessage(msgToSend, this.contact);
       this.scrollToTheEnd();
       form.reset();
@@ -96,7 +96,6 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
       (data: any) => {
         const senderId: string = data.socketId;
         const message: ChatMessage = data.msg;
-        // console.log('new message:', message)
         this.messages.push(message);
       }
     )
@@ -104,41 +103,17 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
   scrollToTheEnd() {
     this.messageSection.nativeElement.scrollTop = this.messageSection.nativeElement.scrollHeight;
   }
-  sendCallRequest() {
 
-  }
   makeAVideoCall() {
     console.log('make a video call')
   }
-  async makeACall() {
-    const peerId = this._peer.id;
-    // console.log('id from chat section: ', peerId)
-    console.log('make conn with: ', this.contact._id);
-    const connectionEstablished = await this._peer.makeConnection(this.contact._id)
-    console.log({ answer: connectionEstablished });
-    if (connectionEstablished) {
-      this._peer.sendUserData(this.contact._id, this.userCard);
-      const callAccepted = await this._peer.listenStatus(this.contact._id).catch(error => { throw error })
-      if (callAccepted) {
-        this.handleCallAllowed();
-      }
-      else {
-        this.handleCallDenegated();
-      }
-    }
-  }
-  public handleCallAllowed() {
-    // const streamInfo = new StreamInfo(this.contact._id, this.contact, true, true);
-    console.log('to contact: ',this.contact);
-    const streamInfo = new StreamInfo(this.contact._id, this.contact, true, true);
-    this._peer.setStreamSettings(streamInfo);
-    //this._socket.disconnect();
-    this._router.navigate(['call']);
-  }
-  public handleCallDenegated() {
-    $('#callDenegated').modal('show');
-  }
-  public async closeConnection() {
 
+  //estos tres
+  //se puede saber cual es el contacto por el contact selected
+  makeACall(){
+    const streamInfo = new StreamInfo(this.contact._id, this.contact, true, true);
+    this._peer.setStreamSettings(streamInfo)
+    this._router.navigate(["call"]);
   }
+  
 }

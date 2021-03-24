@@ -34,7 +34,7 @@ export class SidebarComponent implements OnInit {
       if(Number.isNaN(this.stat)){
         this.stat = 0;
       }
-      this.loadContacts();
+        this.loadContacts();
     });
     this.handleContactDisconnection();
     this.handleContactConnection();

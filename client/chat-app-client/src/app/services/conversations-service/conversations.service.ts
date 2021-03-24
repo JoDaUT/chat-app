@@ -104,9 +104,9 @@ export class ConversationsService {
       return this._socket.listen('get users');
     }
     else if(stat ===1){
-      this._socket.emit('req get users', undefined);
-      console.log('entre a else stat 1');
-      return this._socket.listen('res get users');
+       this._socket.emit('req get users', undefined);
+       console.log('entre a else stat 1');
+       return this._socket.listen('res get users');
     }
   }
   handleContactConnection() {
