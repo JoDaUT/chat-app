@@ -28,6 +28,8 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
   contactSelectedSubscription: Subscription;
   listenCallAnswerSubscription: Subscription;
   endCallSignalSubscription: Subscription;
+
+  public callStarted:boolean;
   constructor(private _callService: CallService, 
               private _router:Router,
               private _socket:SocketService,
@@ -180,11 +182,11 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
   }
   public initCall() {
     console.log('to contact: ',this.contact);
-
-    this.startTimer();
-
+    
+    
     this.initLocalStream();
-
+    this.callStarted = true;
+    this.startTimer();
     this.endCallSignalSubscription = this._socket.listen('end call signal').subscribe( (socketId:string)=>{
       console.log('end call signal');
       if(this.contact.socketId === socketId){

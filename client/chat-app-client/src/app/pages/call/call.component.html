@@ -10,7 +10,8 @@
         <br>
         <h1>{{contact.title}}</h1>
         <br>
-        <h3>{{stopwatch| timer:stopwatch.hours:stopwatch.minutes:stopwatch.seconds}}</h3>
+        <h3 *ngIf="!callStarted">Llamando...</h3>
+        <h3 *ngIf="callStarted">{{stopwatch| timer:stopwatch.hours:stopwatch.minutes:stopwatch.seconds}}</h3>
         <button type="button" mat-card-avatar mat-icon-button class="modal-button" >
             <img mat-card-avatar class="avatar" src="assets/icons/call-ended.svg" (click)="endCall()">
         </button>
