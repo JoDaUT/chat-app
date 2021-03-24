@@ -74,16 +74,15 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
   handleContactSelected() {
     this.contactSelectedSubscription = this._contactSelectedService.currentContact.subscribe(item => {
       this.contact = item;
-      console.log('contact selected: ', this.contact);
     })
   }
   initLocalStream() {
 
-    const { sender } = this.streamInfo;
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+    const { sender, callOptions } = this.streamInfo;
+
+    navigator.mediaDevices.getUserMedia({ video: callOptions.video, audio: callOptions.audio }).then((stream) => {
       this.stream = stream;
       
-      console.log('id: ', this.contact._id);
       if (sender) {
         this._callService.sendStream(this.contact._id, stream);
 
@@ -138,7 +137,6 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
     }
     this.stopTimer();
     if(sendStatus){
-      console.log('end call emit:',this.contact.socketId);
       this._socket.emit('end call', this.contact.socketId);
     }
     this._router.navigate(["/chat",1]);
@@ -157,40 +155,31 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
   }
   makeACall() {
     const peerId = this._callService.id;
-    console.log('make conn with: ', this.contact._id);
     const senderInfo = this.userCard;
     const receiverId = this.contact.socketId;
-    const callOptions = {audio:true, video:true};
+    const {callOptions} = this._callService.getStreamSettings();
     console.log({senderInfo, callOptions,receiverId});
     this._socket.emit('send call request', {senderInfo, callOptions,receiverId});
-    
-    console.log('patito');
-
   }
   handleCallAnswer(){
     this.listenCallAnswerSubscription = this._socket.listen('listen call answer').subscribe((callAllowed:boolean)=>{
-      console.log({callAllowed});
       if (callAllowed) {
         this.initCall();
       }
       else {
-        console.log('call denegated');
         this.handleCallDenegated();
       }
     })
     
   }
   public initCall() {
-    console.log('to contact: ',this.contact);
     
     
     this.initLocalStream();
     this.callStarted = true;
     this.startTimer();
     this.endCallSignalSubscription = this._socket.listen('end call signal').subscribe( (socketId:string)=>{
-      console.log('end call signal');
       if(this.contact.socketId === socketId){
-        console.log('end call signal if');
         this.endCall(false);
       }
     })

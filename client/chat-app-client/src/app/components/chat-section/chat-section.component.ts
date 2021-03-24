@@ -12,7 +12,7 @@ import { SocketService } from 'src/app/services/socket-service/socket.service';
 import { CallService } from '../../services/call-service/call.service';
 import { Router } from '@angular/router';
 // import { Subscription } from 'rxjs';
-import { StreamInfo } from '../../models/StreamInfo';
+import { CallOptions, StreamInfo } from '../../models/StreamInfo';
 declare const Peer: any;
 declare const $: any;
 @Component({
@@ -105,15 +105,21 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
   }
 
   makeAVideoCall() {
-    console.log('make a video call')
+    const callOptions = new CallOptions(true, true);
+    console.log('videocall opt:', callOptions);
+    const streamInfo = new StreamInfo(this.contact._id, this.contact, true, callOptions);
+    this._peer.setStreamSettings(streamInfo)
+    this._router.navigate(["call"]);
   }
 
   //estos tres
   //se puede saber cual es el contacto por el contact selected
   makeACall(){
-    const streamInfo = new StreamInfo(this.contact._id, this.contact, true, true);
+    const callOptions = new CallOptions(true, false);
+    console.log('call opt:', callOptions);
+    const streamInfo = new StreamInfo(this.contact._id, this.contact, true, callOptions);
     this._peer.setStreamSettings(streamInfo)
     this._router.navigate(["call"]);
   }
-  
+
 }

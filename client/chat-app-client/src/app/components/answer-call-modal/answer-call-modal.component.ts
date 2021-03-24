@@ -5,7 +5,7 @@ declare const $: any;
 import ContactInfo from 'src/app/models/ContactInfo';
 import { CallService } from '../../services/call-service/call.service';
 import { SocketService } from '../../services/socket-service/socket.service';
-import { StreamInfo } from '../../models/StreamInfo';
+import { StreamInfo, CallOptions } from '../../models/StreamInfo';
 declare const Peer: any;
 @Component({
   selector: 'answer-call-modal',
@@ -14,6 +14,7 @@ declare const Peer: any;
 })
 export class AnswerCallModalComponent implements OnInit {
   public entryCall: ContactInfo;
+  callOptions: CallOptions;
   constructor(private _peer: CallService, 
               private _router: Router,
               private _socket:SocketService) {
@@ -29,20 +30,37 @@ export class AnswerCallModalComponent implements OnInit {
   public listenConnection() {
     this._socket.listen('listen call request').subscribe( (data:any)=>{
       const senderInfo:ContactInfo = data.senderInfo;
-      const callOptions = data.callOptions;
-      console.log('listen Call Request: ',{senderInfo, callOptions});
+      this.callOptions = data.callOptions;
+      console.log('call opt',this.callOptions);
+      console.log('listen Call Request: ',{senderInfo, callOptions:this.callOptions});
       this.entryCall = senderInfo;
       this.showModal();
     })
   }
-  public answerCall() {
+  public answerVideoCall() {
+    const audio = true;
+    const video = true;
     console.log('answer call')
     const callAllowed = true;
     const receiverId = this.entryCall.socketId;
     console.log('send call answer',{callAllowed, receiverId});
     this._socket.emit('send call answer', {callAllowed, receiverId});
+    const options = new CallOptions(audio, video);
+    const streamInfo = new StreamInfo(this.entryCall._id, this.entryCall, false, options);
+    this._peer.setStreamSettings(streamInfo);
+    this._router.navigate(['call']);
+  }
 
-    const streamInfo = new StreamInfo(this.entryCall._id, this.entryCall, false, true);
+  public answerCall() {
+    const audio = true;
+    const video = false;
+    console.log('answer call')
+    const callAllowed = true;
+    const receiverId = this.entryCall.socketId;
+    console.log('send call answer',{callAllowed, receiverId});
+    this._socket.emit('send call answer', {callAllowed, receiverId});
+    const callOptions = new CallOptions(audio, video);
+    const streamInfo = new StreamInfo(this.entryCall._id, this.entryCall, false, callOptions);
     this._peer.setStreamSettings(streamInfo);
     this._router.navigate(['call']);
   }

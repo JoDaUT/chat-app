@@ -30,8 +30,10 @@
                     <mat-card-subtitle>{{entryCall.title}}</mat-card-subtitle>
                 </mat-card-header>
             </div>
-            <div class="modal-footer">
-                <button type="button" mat-card-avatar class="modal-button" data-dismiss="modal" (click)="answerCall()"><img mat-card-avatar
+            <div class="modal-footer" *ngIf="callOptions">
+                <button *ngIf="callOptions.video" type="button" mat-card-avatar class="modal-button" data-dismiss="modal" (click)="answerVideoCall()"><img mat-card-avatar
+                    src="assets/icons/videocam.svg"></button>
+                <button *ngIf="!callOptions.video" type="button" mat-card-avatar class="modal-button" data-dismiss="modal" (click)="answerCall()"><img mat-card-avatar
                         src="assets/icons/call.svg"></button>
                 <button type="button" mat-card-avatar class="modal-button" data-dismiss="modal" (click)="denegateCall()"><img mat-card-avatar
                         src="assets/icons/call-ended.svg"></button>

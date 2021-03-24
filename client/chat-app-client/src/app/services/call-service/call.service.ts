@@ -23,7 +23,7 @@ export class CallService {
     this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, '', this.firebaseUser.photoURL, '');
     this._peer = undefined;
     this.id = undefined;
-    this._streamInfo = new StreamInfo('', undefined, false, false)
+    this._streamInfo = new StreamInfo('', undefined, false, undefined)
     this.createPeer();
   }
   createPeer() {
