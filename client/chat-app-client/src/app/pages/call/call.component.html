@@ -1,14 +1,18 @@
 <!-- *ngIf="contact" -->
-<div class="custom-container" *ngIf="contact" >
+<div class="custom-container">
 <app-header class="item1"></app-header>
     <div class="item3">
-        <img src="{{contact.avatar}}" width="95" height="95" alt="contact.title">
+        <img *ngIf="contact &&( !callStarted || !streamInfo?.callOptions?.video)" src="{{contact.avatar}}" width="95" height="95" alt="contact.title">
         <br>    
-        <video #contactVideo width="95" height="95" 
-        style="border: 1px solid black; object-fit: cover;"></video>
-            <!-- <source src="contact.avatar" alt="contact.title" type="image/*"></source> -->
+        <div #videoContainer class="video-container">
+            <!-- <video *ngIf="streamInfo?.callOptions?.video" #myVideo width="videoOptions.width" height="videoOptions.height" 
+            style="object-fit: cover;"></video>
+            <video #contactVideo width="videoOptions.width" height="videoOptions.height" 
+            style="object-fit: cover;"></video> -->
+        </div>
         <br>
-        <h1>{{contact.title}}</h1>
+
+        <h1 *ngIf="contact">{{contact.title}}</h1>
         <br>
         <h3 *ngIf="!callStarted">Llamando...</h3>
         <h3 *ngIf="callStarted">{{stopwatch| timer:stopwatch.hours:stopwatch.minutes:stopwatch.seconds}}</h3>

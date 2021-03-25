@@ -1,9 +1,9 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, AfterViewChecked } from '@angular/core';
 import { CallService } from '../../services/call-service/call.service';
 import ContactInfo from '../../models/ContactInfo';
 import { Stopwatch } from 'src/app/helpers/Stopwatch';
 import { Router } from '@angular/router';
-import { StreamInfo } from '../../models/StreamInfo';
+import { StreamInfo, CallOptions } from '../../models/StreamInfo';
 import { SocketService } from '../../services/socket-service/socket.service';
 import { ContactSelectedService } from 'src/app/services/contact-selected-service/contact-selected.service';
 import { AuthService } from 'src/app/services/auth-service/auth.service';
@@ -16,8 +16,8 @@ declare const $:any;
   templateUrl: './call.component.html',
   styleUrls: ['./call.component.css']
 })
-export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
-  @ViewChild('contactVideo') contactVideo: ElementRef;
+export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnDestroy {
+  @ViewChild('videoContainer') videoContainer: ElementRef<HTMLDivElement>;
   streamInfo: StreamInfo | undefined;
   contact: ContactInfo;
   public stopwatch: Stopwatch;
@@ -28,31 +28,57 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
   contactSelectedSubscription: Subscription;
   listenCallAnswerSubscription: Subscription;
   endCallSignalSubscription: Subscription;
-
+  
   public callStarted:boolean;
+  videoOptions: { width: number; height: number; };
   constructor(private _callService: CallService, 
               private _router:Router,
               private _socket:SocketService,
               private _contactSelectedService: ContactSelectedService,
               private _auth: AuthService) {
     this.stopwatch = new Stopwatch();
+    
   }
   ngOnDestroy(): void {
     this._callService.closeCall(this.contact._id);
-    this.stopStreamedVideo(this.contactVideo)
+    const videos = document.querySelectorAll('.video-container video');
+    videos.forEach( (value:HTMLVideoElement)=>{
+      this.stopStreamedVideo(value);
+    })
     if(this.getMyUserSubscription) this.getMyUserSubscription.unsubscribe();
     if(this.contactSelectedSubscription) this.contactSelectedSubscription.unsubscribe();
     if(this.listenCallAnswerSubscription) this.listenCallAnswerSubscription.unsubscribe();
     if(this.endCallSignalSubscription) this.endCallSignalSubscription.unsubscribe();
   }
-  ngAfterViewInit(): void {
+  ngAfterViewChecked(){
+    // this._socket.emit('req get my user', undefined);
+    // this.getMyUserSubscription = this._socket.listen('res get my user').subscribe( myUser=>{
+    //   const {socketId} = myUser;
+    //   this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
+    //   this.handleContactSelected();
+    //   console.log("streamInfo: ",this.streamInfo);
+    //   if(this.streamInfo.sender){
+    //     this.makeACall();
+    //     this.handleCallAnswer();
+    //   }
+    //   else{
+    //     this.contact = this.streamInfo.contact;
+    //     this.initCall();
+    //   }
+    // })
   }
+  ngAfterViewInit(): void {
+    // this.streamInfo = this._callService.getStreamSettings();
+    // const {callOptions} =  this.streamInfo;
+    // if(callOptions.video){
+    //   this.videoOptions = {width: 200, height: 200};
+    // }
+    // else{
+    //   this.videoOptions = {width: 0, height: 0};
+    // }
 
-  ngOnInit(): void {
-    
-    this.streamInfo = this._callService.getStreamSettings();
+    // this.firebaseUser = this._auth.getUser();
 
-    this.firebaseUser = this._auth.getUser();
     this._socket.emit('req get my user', undefined);
     this.getMyUserSubscription = this._socket.listen('res get my user').subscribe( myUser=>{
       const {socketId} = myUser;
@@ -68,6 +94,38 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
         this.initCall();
       }
     })
+  }
+
+  ngOnInit(): void {
+    
+    this.streamInfo = this._callService.getStreamSettings();
+    const {callOptions} =  this.streamInfo;
+    if(callOptions.video){
+      this.videoOptions = {width: 200, height: 200};
+    }
+    else{
+      this.videoOptions = {width: 0, height: 0};
+    }
+
+    this.firebaseUser = this._auth.getUser();
+
+
+
+    // this._socket.emit('req get my user', undefined);
+    // this.getMyUserSubscription = this._socket.listen('res get my user').subscribe( myUser=>{
+    //   const {socketId} = myUser;
+    //   this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
+    //   this.handleContactSelected();
+    //   console.log("streamInfo: ",this.streamInfo);
+    //   if(this.streamInfo.sender){
+    //     this.makeACall();
+    //     this.handleCallAnswer();
+    //   }
+    //   else{
+    //     this.contact = this.streamInfo.contact;
+    //     this.initCall();
+    //   }
+    // })
 
   }
 
@@ -79,22 +137,43 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
   initLocalStream() {
 
     const { sender, callOptions } = this.streamInfo;
+    // const videoContainer = document.getElementById('video-container');
+    const videoContainer:HTMLDivElement = this.videoContainer.nativeElement;
+    setTimeout( ()=>{
+      console.log('videoContainer: ',videoContainer);
 
-    navigator.mediaDevices.getUserMedia({ video: callOptions.video, audio: callOptions.audio }).then((stream) => {
+    },1000);
+    navigator.mediaDevices.getUserMedia({ video: callOptions.video, audio: callOptions.audio }).then((stream:MediaStream) => {
       this.stream = stream;
-      
+
+      if(this.streamInfo.callOptions.video){
+        this.addVideo(this.stream, videoContainer, {muted:true});
+      }
+      else{
+        console.log('only audio call');
+      }
       if (sender) {
         this._callService.sendStream(this.contact._id, stream);
 
-        this._callService.receiveStream(this.contact._id).then((remoteStream) => {
-          this.addVideo(remoteStream, { muted: false });
+        this._callService.receiveStream(this.contact._id).then((remoteStream:MediaStream) => {
+          if(this.streamInfo.callOptions.video){
+            this.addVideo(remoteStream,videoContainer,{ muted: false });
+          }
+          else{
+            console.log('receive only audio');
+          }
         }).catch(err => console.error(err));
       }
       else {
         this._callService.listenStreamCall(this.contact._id, stream).then((res) => {
-          this._callService.receiveStream(this.contact._id).then((remoteStream) => {
+          this._callService.receiveStream(this.contact._id).then((remoteStream:MediaStream) => {
             console.log('receive stream from caller', remoteStream);
-            this.addVideo(remoteStream, { muted: false });
+            if(this.streamInfo.callOptions.video){
+              this.addVideo(remoteStream, videoContainer, { muted: false });
+            }
+            else{
+              console.log('receive only audio 2');
+            }
           }).catch(err => console.error(err));
 
         })
@@ -107,12 +186,18 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
       this._router.navigate(["/chat",1]);
     });
   }
-  addVideo(remoteStream: unknown, options: { muted: false }) {
-    const video = this.contactVideo.nativeElement
+  addVideo(remoteStream: MediaStream, htmlElement:HTMLElement,options: { muted:boolean}) {
+    //const video = this.contactVideo.nativeElement
+    const video = document.createElement('video');
     video.srcObject = remoteStream;
     video.muted = options.muted;
+    video.classList.add('video');
+    video.width = 200;
+    video.height = 200;
+    console.log('video: ',video);
     video.onloadedmetadata = function (e) {
       video.play();
+      htmlElement.appendChild(video);
     }
   }
   startTimer() {
@@ -141,12 +226,11 @@ export class CallComponent implements OnInit, AfterViewInit,OnDestroy {
     }
     this._router.navigate(["/chat",1]);
   }
-  stopStreamedVideo(video:ElementRef) {
-    const videoElem = video.nativeElement;
-    const stream = videoElem.srcObject;
+  stopStreamedVideo(videoElem:HTMLVideoElement) {
+    //const videoElem = video.nativeElement;
+    const stream = <MediaStream> videoElem.srcObject;
     const tracks = stream?.getTracks();
     if(tracks){
-
       tracks.forEach(function(track) {
         track.stop();
       });
