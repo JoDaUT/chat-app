@@ -10,6 +10,7 @@ export const environment = {
     measurementId: "G-GLPKQJXCWG"
   },
   api:{
-    url: 'http://localhost:3000/chat'
+    //url: 'http://localhost:3000/chat'
+    url: "https://chat-app-backend-0102.herokuapp.com"
   }
 };
