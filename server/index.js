@@ -7,11 +7,6 @@ const bodyParser = require('body-parser');
 
 const http = require('http').createServer(app);
 const io = require('socket.io')(http,{
-    //serveClient: false,
-    // // below are engine.IO options
-    // pingInterval: 10000,
-    // pingTimeout: 5000,
-    // cookie: false
     cors: {
         origin: "http://localhost:4200",
         credentials: true
@@ -50,13 +45,13 @@ app.use('/', cors(), authRouter);
 
 //NO BORRAR
 
-app.use(exp.static(path.join(__dirname, 'public', 'dist','chat-app-client')));
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'dist', 'chat-app-client', 'index.html'));
-});
-app.get('/', (req,res)=>{
-    res.send('sucess');
-})
+// app.use(exp.static(path.join(__dirname, 'public', 'dist','chat-app-client')));
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public', 'dist', 'chat-app-client', 'index.html'));
+// });
+// app.get('/', (req,res)=>{
+//     res.send('sucess');
+// })
 
 http.listen(3000, () => {
     console.log(`listening on ${url}`);
