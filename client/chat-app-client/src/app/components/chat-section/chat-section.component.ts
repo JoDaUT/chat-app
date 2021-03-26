@@ -70,7 +70,6 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
   handleContactSelected() {
     this._contactSelectedService.currentContact.subscribe(item => {
       this.contact = item;
-      console.log('contact selected: ', this.contact);
     })
   }
   handleSelection(event: any) {
@@ -83,7 +82,6 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
       const msgToSend: ChatMessage = new ChatMessage(this.messageToSend, new Date(), 1);
 
       //for the receiver itll be type 1
-      console.log({msgToSend, contact:this.contact});
       this._conversationsService.sendMessage(msgToSend, this.contact);
       this.scrollToTheEnd();
       form.reset();
@@ -106,7 +104,6 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
 
   makeAVideoCall() {
     const callOptions = new CallOptions(true, true);
-    console.log('videocall opt:', callOptions);
     const streamInfo = new StreamInfo(this.contact._id, this.contact, true, callOptions);
     this._peer.setStreamSettings(streamInfo)
     this._router.navigate(["call"]);
@@ -116,7 +113,6 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
   //se puede saber cual es el contacto por el contact selected
   makeACall(){
     const callOptions = new CallOptions(true, false);
-    console.log('call opt:', callOptions);
     const streamInfo = new StreamInfo(this.contact._id, this.contact, true, callOptions);
     this._peer.setStreamSettings(streamInfo)
     this._router.navigate(["call"]);

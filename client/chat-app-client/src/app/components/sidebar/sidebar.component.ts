@@ -28,7 +28,6 @@ export class SidebarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('Sidebar: ngOnInit');
     this.activatedRoute.params.subscribe(params => {
       this.stat = Number(params['stat']);
       if(Number.isNaN(this.stat)){
@@ -44,10 +43,6 @@ export class SidebarComponent implements OnInit {
   onSubmit(form: NgForm): void {
     console.log('search form send');
   }
-  // getMyUser(): Observable<any> {
-  //   this._socket.emit('req get my user', undefined);
-  //   return this._socket.listen('res get my user');
-  // }
   handleContactDisconnection() {
     this._socket.listen('user disconnect').subscribe((user: any) => {
       const index = this.contactsInfo.findIndex((value: ContactInfo) => value.socketId === user.socketId)
@@ -76,7 +71,6 @@ export class SidebarComponent implements OnInit {
   }
   loadContacts() {
     this._conversationsService.getContacts(this.stat).subscribe((contacts: any[]) => {
-      console.log({contacts});
       for (let item of contacts) {
         const socketId = item.socketId;
         const contact = item.data;
@@ -85,7 +79,7 @@ export class SidebarComponent implements OnInit {
         this.badgeList[contactInfo.socketId] = 0;
       }
     },
-      err => console.log('load contacts error: ', err))
+      err => console.error('load contacts error: ', err))
   }
   notifyContactSelected(contact: ContactInfo) {
     this.contactSelected.emit(contact);
@@ -101,7 +95,7 @@ export class SidebarComponent implements OnInit {
           this.badgeList[id]++;
         }
       }, (err) => {
-        console.log("Error: handleMessageNotification");
+        console.error("Error: handleMessageNotification");
       })
   }
 }

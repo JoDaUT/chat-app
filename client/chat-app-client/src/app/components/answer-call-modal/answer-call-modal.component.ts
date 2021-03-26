@@ -31,8 +31,6 @@ export class AnswerCallModalComponent implements OnInit {
     this._socket.listen('listen call request').subscribe( (data:any)=>{
       const senderInfo:ContactInfo = data.senderInfo;
       this.callOptions = data.callOptions;
-      console.log('call opt',this.callOptions);
-      console.log('listen Call Request: ',{senderInfo, callOptions:this.callOptions});
       this.entryCall = senderInfo;
       this.showModal();
     })
@@ -40,10 +38,8 @@ export class AnswerCallModalComponent implements OnInit {
   public answerVideoCall() {
     const audio = true;
     const video = true;
-    console.log('answer call')
     const callAllowed = true;
     const receiverId = this.entryCall.socketId;
-    console.log('send call answer',{callAllowed, receiverId});
     this._socket.emit('send call answer', {callAllowed, receiverId});
     const options = new CallOptions(audio, video);
     const streamInfo = new StreamInfo(this.entryCall._id, this.entryCall, false, options);
@@ -54,10 +50,8 @@ export class AnswerCallModalComponent implements OnInit {
   public answerCall() {
     const audio = true;
     const video = false;
-    console.log('answer call')
     const callAllowed = true;
     const receiverId = this.entryCall.socketId;
-    console.log('send call answer',{callAllowed, receiverId});
     this._socket.emit('send call answer', {callAllowed, receiverId});
     const callOptions = new CallOptions(audio, video);
     const streamInfo = new StreamInfo(this.entryCall._id, this.entryCall, false, callOptions);
@@ -65,7 +59,6 @@ export class AnswerCallModalComponent implements OnInit {
     this._router.navigate(['call']);
   }
   public async denegateCall() {
-    //this._peer.sendStatus(this.entryCall._id, false);
     const callAllowed = false;
     const receiverId = this.entryCall.socketId;
     this._socket.emit('send call answer', {callAllowed, receiverId});

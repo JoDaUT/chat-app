@@ -63,7 +63,6 @@ export class CallService {
   listenStreamCall(id: string, stream: any) {
     return new Promise( (resolve)=>{
       this._peer.on('call', (conn) => {
-        console.log('call detected');
         this._calls[id] = conn;
         this._calls[id].answer(stream);
         resolve(true);

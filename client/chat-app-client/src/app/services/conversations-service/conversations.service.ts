@@ -60,13 +60,11 @@ export class ConversationsService {
   }
   updateConversation() {
     const conversation = this.inbox.find((value: ContactInbox) => value.socketId === this.currentContact.socketId);
-    console.log('alerta:', conversation);
     if (conversation) {
       this.messagesSource.next(conversation.messages);
     }
   }
   sendMessage(message: ChatMessage, receiver: ContactInfo) {
-    //console.log('msg to send: ', message, 'to: ', receiver.socketId);
     this._socket.emitTo('emit private message', receiver.socketId, message);
   }
   getNewMessagesFromAPI() {
@@ -77,10 +75,7 @@ export class ConversationsService {
       (data: any) => {
         const senderId: string = data.socketId;
         const message: ChatMessage = data.msg;
-        //console.log('new message:', message)
         const conversation:ContactInbox = this.inbox.find((value: ContactInbox) => value.socketId === senderId);
-        //console.log(conversation);
-
         conversation.messages.push(message);
       }
     )
@@ -105,7 +100,6 @@ export class ConversationsService {
     }
     else if(stat ===1){
        this._socket.emit('req get users', undefined);
-       console.log('entre a else stat 1');
        return this._socket.listen('res get users');
     }
   }
@@ -118,7 +112,6 @@ export class ConversationsService {
   addContact(user: any) {
     const socketId = user.socketId;
     const contact = user.data;
-    //('user conect: ', user.socketId);
     const contactInfo = new ContactInfo(contact.uid, contact.displayName, contact.email, 'online', contact.photoURL, socketId);
     this.contactsInfo.push(contactInfo);
     return contactInfo;
@@ -131,9 +124,7 @@ export class ConversationsService {
   }
   handleContactDisconnection() {
     this._socket.listen('user disconnect').subscribe((user: any) => {
-      //console.log('user disconnect: ', user);
       const index = this.contactsInfo.findIndex((value: ContactInfo) => value.socketId === user.socketId)
-      //console.log(index);
       this.deleteContactFormList(index);
       this.deleteConversation(index);
     })

@@ -16,7 +16,7 @@ declare const $:any;
   templateUrl: './call.component.html',
   styleUrls: ['./call.component.css']
 })
-export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnDestroy {
+export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
   @ViewChild('videoContainer') videoContainer: ElementRef<HTMLDivElement>;
   streamInfo: StreamInfo | undefined;
   contact: ContactInfo;
@@ -50,41 +50,12 @@ export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnD
     if(this.listenCallAnswerSubscription) this.listenCallAnswerSubscription.unsubscribe();
     if(this.endCallSignalSubscription) this.endCallSignalSubscription.unsubscribe();
   }
-  ngAfterViewChecked(){
-    // this._socket.emit('req get my user', undefined);
-    // this.getMyUserSubscription = this._socket.listen('res get my user').subscribe( myUser=>{
-    //   const {socketId} = myUser;
-    //   this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
-    //   this.handleContactSelected();
-    //   console.log("streamInfo: ",this.streamInfo);
-    //   if(this.streamInfo.sender){
-    //     this.makeACall();
-    //     this.handleCallAnswer();
-    //   }
-    //   else{
-    //     this.contact = this.streamInfo.contact;
-    //     this.initCall();
-    //   }
-    // })
-  }
   ngAfterViewInit(): void {
-    // this.streamInfo = this._callService.getStreamSettings();
-    // const {callOptions} =  this.streamInfo;
-    // if(callOptions.video){
-    //   this.videoOptions = {width: 200, height: 200};
-    // }
-    // else{
-    //   this.videoOptions = {width: 0, height: 0};
-    // }
-
-    // this.firebaseUser = this._auth.getUser();
-
     this._socket.emit('req get my user', undefined);
     this.getMyUserSubscription = this._socket.listen('res get my user').subscribe( myUser=>{
       const {socketId} = myUser;
       this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
       this.handleContactSelected();
-      console.log("streamInfo: ",this.streamInfo);
       if(this.streamInfo.sender){
         this.makeACall();
         this.handleCallAnswer();
@@ -106,27 +77,7 @@ export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnD
     else{
       this.videoOptions = {width: 0, height: 0};
     }
-
     this.firebaseUser = this._auth.getUser();
-
-
-
-    // this._socket.emit('req get my user', undefined);
-    // this.getMyUserSubscription = this._socket.listen('res get my user').subscribe( myUser=>{
-    //   const {socketId} = myUser;
-    //   this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
-    //   this.handleContactSelected();
-    //   console.log("streamInfo: ",this.streamInfo);
-    //   if(this.streamInfo.sender){
-    //     this.makeACall();
-    //     this.handleCallAnswer();
-    //   }
-    //   else{
-    //     this.contact = this.streamInfo.contact;
-    //     this.initCall();
-    //   }
-    // })
-
   }
 
   handleContactSelected() {
@@ -137,12 +88,8 @@ export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnD
   initLocalStream() {
 
     const { sender, callOptions } = this.streamInfo;
-    // const videoContainer = document.getElementById('video-container');
     const videoContainer:HTMLDivElement = this.videoContainer.nativeElement;
-    setTimeout( ()=>{
-      console.log('videoContainer: ',videoContainer);
-
-    },1000);
+ 
     navigator.mediaDevices.getUserMedia({ video: callOptions.video, audio: callOptions.audio }).then((stream:MediaStream) => {
       this.stream = stream;
 
@@ -150,7 +97,7 @@ export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnD
         this.addVideo(this.stream, videoContainer, {muted:true});
       }
       else{
-        console.log('only audio call');
+        this.addAudio(this.stream, videoContainer, {muted:true});
       }
       if (sender) {
         this._callService.sendStream(this.contact._id, stream);
@@ -160,19 +107,18 @@ export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnD
             this.addVideo(remoteStream,videoContainer,{ muted: false });
           }
           else{
-            console.log('receive only audio');
+            this.addAudio(remoteStream,videoContainer,{ muted: false });
           }
         }).catch(err => console.error(err));
       }
       else {
         this._callService.listenStreamCall(this.contact._id, stream).then((res) => {
           this._callService.receiveStream(this.contact._id).then((remoteStream:MediaStream) => {
-            console.log('receive stream from caller', remoteStream);
             if(this.streamInfo.callOptions.video){
               this.addVideo(remoteStream, videoContainer, { muted: false });
             }
             else{
-              console.log('receive only audio 2');
+              this.addAudio(remoteStream, videoContainer, { muted: false });
             }
           }).catch(err => console.error(err));
 
@@ -186,15 +132,26 @@ export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnD
       this._router.navigate(["/chat",1]);
     });
   }
-  addVideo(remoteStream: MediaStream, htmlElement:HTMLElement,options: { muted:boolean}) {
-    //const video = this.contactVideo.nativeElement
+  addAudio(remoteStream: MediaStream, htmlElement: HTMLDivElement, options: { muted: boolean; }) {
     const video = document.createElement('video');
     video.srcObject = remoteStream;
     video.muted = options.muted;
     video.classList.add('video');
     video.width = 200;
     video.height = 200;
-    console.log('video: ',video);
+    video.style.display = "none";
+    video.onloadedmetadata = function (e) {
+      video.play();
+      htmlElement.appendChild(video);
+    }
+  }
+  addVideo(remoteStream: MediaStream, htmlElement:HTMLElement,options: { muted:boolean}) {
+    const video = document.createElement('video');
+    video.srcObject = remoteStream;
+    video.muted = options.muted;
+    video.classList.add('video');
+    video.width = 200;
+    video.height = 200;
     video.onloadedmetadata = function (e) {
       video.play();
       htmlElement.appendChild(video);
@@ -227,7 +184,6 @@ export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnD
     this._router.navigate(["/chat",1]);
   }
   stopStreamedVideo(videoElem:HTMLVideoElement) {
-    //const videoElem = video.nativeElement;
     const stream = <MediaStream> videoElem.srcObject;
     const tracks = stream?.getTracks();
     if(tracks){
@@ -242,7 +198,6 @@ export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnD
     const senderInfo = this.userCard;
     const receiverId = this.contact.socketId;
     const {callOptions} = this._callService.getStreamSettings();
-    console.log({senderInfo, callOptions,receiverId});
     this._socket.emit('send call request', {senderInfo, callOptions,receiverId});
   }
   handleCallAnswer(){
@@ -257,8 +212,6 @@ export class CallComponent implements OnInit,AfterViewInit, AfterViewChecked,OnD
     
   }
   public initCall() {
-    
-    
     this.initLocalStream();
     this.callStarted = true;
     this.startTimer();
