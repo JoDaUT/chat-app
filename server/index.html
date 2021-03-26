@@ -161,11 +161,9 @@
     })
 
     const findContactByNickname = function(nickname){
-      //console.log('to send: ',nickname);
       const index = contacts.findIndex( (value, i )=>{
         return value.nickname === nickname;
       })
-      console.log(index);
       return contacts[index];
     }
 
@@ -187,7 +185,6 @@
       if (user) {
         contacts.push(user);
         updatecontactsHTML(contactsHTML, user, 'online');
-        console.log('total: ', messages);
         return createMessage(`${user.nickname} connected`);
       }
       return undefined;
@@ -195,8 +192,6 @@
 
     const removeUserFromContacts = function (user, contactsList) {
       const contactsListHTML = document.getElementById('contacts');
-      console.log('user to remove: ', user);
-      console.log(contactsList, contactsListHTML);
 
       let index = -1;
       for (let i = 0; i < contactsList.length; i++) {

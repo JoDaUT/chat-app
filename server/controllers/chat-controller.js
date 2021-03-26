@@ -15,6 +15,9 @@ module.exports.respond = function (socket, io) {
             
         }
     })
+    socket.on('req get my user', ()=>{
+        socket.emit('res get my user', chatService.getUserById(socket.id))
+    })
     socket.on('req get users',()=>{
         console.log('req get users');
         socket.emit('res get users', chatService.getArrayOfAllUsers().filter( (value)=>value.socketId !== socket.id));
@@ -49,5 +52,18 @@ module.exports.respond = function (socket, io) {
         console.log(socket.id + "entro a blur para: " + receiverId);
 
         socket.to(receiverId).emit('private stop typing', chatService.getUserById(socket.id));
+    })
+    socket.on('end call', (receiverId)=>{
+        console.log(`from: ${socket.id} to:${receiverId}`);
+        socket.to(receiverId).emit('end call signal', socket.id);
+    })
+    socket.on('send call request', (info)=>{
+        const{senderInfo, callOptions, receiverId} = info;
+        console.log('send call request:', {senderInfo, callOptions, receiverId});
+        socket.to(receiverId).emit('listen call request', {senderInfo, callOptions});
+    })
+    socket.on('send call answer', (info)=>{
+        const{callAllowed, receiverId} = info;
+        socket.to(receiverId).emit('listen call answer', callAllowed);
     })
 };
