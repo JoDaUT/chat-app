@@ -40,7 +40,7 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
     
   }
   ngOnDestroy(): void {
-    this._callService.closeCall(this.contact._id);
+    this._callService.closeCall(this.contact.uid);
     const videos = document.querySelectorAll('.video-container video');
     videos.forEach( (value:HTMLVideoElement)=>{
       this.stopStreamedVideo(value);
@@ -80,8 +80,13 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
     this.firebaseUser = this._auth.getUser();
   }
 
+  // handleContactSelected() {
+  //   this.contactSelectedSubscription = this._contactSelectedService.currentContact.subscribe(item => {
+  //     this.contact = item;
+  //   })
+  // }
   handleContactSelected() {
-    this.contactSelectedSubscription = this._contactSelectedService.currentContact.subscribe(item => {
+    this.contactSelectedSubscription = this._contactSelectedService.contactSelected.subscribe(item => {
       this.contact = item;
     })
   }
@@ -100,9 +105,9 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
         this.addAudio(this.stream, videoContainer, {muted:true});
       }
       if (sender) {
-        this._callService.sendStream(this.contact._id, stream);
+        this._callService.sendStream(this.contact.uid, stream);
 
-        this._callService.receiveStream(this.contact._id).then((remoteStream:MediaStream) => {
+        this._callService.receiveStream(this.contact.uid).then((remoteStream:MediaStream) => {
           if(this.streamInfo.callOptions.video){
             this.addVideo(remoteStream,videoContainer,{ muted: false });
           }
@@ -112,8 +117,8 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
         }).catch(err => console.error(err));
       }
       else {
-        this._callService.listenStreamCall(this.contact._id, stream).then((res) => {
-          this._callService.receiveStream(this.contact._id).then((remoteStream:MediaStream) => {
+        this._callService.listenStreamCall(this.contact.uid, stream).then((res) => {
+          this._callService.receiveStream(this.contact.uid).then((remoteStream:MediaStream) => {
             if(this.streamInfo.callOptions.video){
               this.addVideo(remoteStream, videoContainer, { muted: false });
             }

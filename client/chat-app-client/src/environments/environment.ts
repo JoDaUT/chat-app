@@ -15,7 +15,6 @@ export const environment = {
   },
   api:{
     url: 'http://localhost:3000'
-    //url: "https://chat-app-backend-0102.herokuapp.com"
   }
 };
 

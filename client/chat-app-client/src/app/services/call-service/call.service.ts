@@ -27,7 +27,7 @@ export class CallService {
     this.createPeer();
   }
   createPeer() {
-    this._peer = new Peer(this.userCard._id);
+    this._peer = new Peer(this.userCard.uid);
     this._peer.on('open', (id) => {
       this.id = id;
     })

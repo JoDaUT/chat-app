@@ -13,6 +13,8 @@ import { CallService } from '../../services/call-service/call.service';
 import { Router } from '@angular/router';
 // import { Subscription } from 'rxjs';
 import { CallOptions, StreamInfo } from '../../models/StreamInfo';
+import { MessageNotification } from '../../models/MessageNotification';
+import { Subscription } from 'rxjs';
 declare const Peer: any;
 declare const $: any;
 @Component({
@@ -30,9 +32,10 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
 
   public firebaseUser: firebase.User;
   public userCard: ContactInfo;
-  // public subscription = {};
+  public messageNotificationSubscription:Subscription
   public inboxMessages: Array<ContactInbox>;
   @ViewChild('messageSection') messageSection: ElementRef;
+  contactSelectedSubscription: Subscription;
   
   constructor(private _contactSelectedService: ContactSelectedService,
     private _conversationsService: ConversationsService,
@@ -46,6 +49,8 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
     this.messageToSend = '';
 
     this.inboxMessages = new Array<ContactInbox>();
+
+    this.contact = new ContactInfo('','','','','assets/icons/default-avatar.svg','');
   }
 
   ngOnInit(): void {
@@ -57,9 +62,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
     })
 
     this.handleContactSelected();
-    this._conversationsService.currentMessages.subscribe(msg => {
-      this.messages = msg;
-    })
+    //this.getCurrentConversations();
 
   }
   ngDoCheck() {
@@ -67,19 +70,84 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
   ngAfterViewChecked() {
     this.scrollToTheEnd();
   }
-  handleContactSelected() {
-    this._contactSelectedService.currentContact.subscribe(item => {
-      this.contact = item;
+  async getCurrentConversations(){
+    const contactUid = this.contact.uid;
+    console.log('get data from: ', this.contact);
+    const request = await this._conversationsService.getConversation(contactUid)
+    if(request)
+    {
+      request.subscribe( (conversation:ChatMessage[])=>{
+        console.log(conversation);
+        this.messages = conversation;
+      },
+      error=>console.error(error))
+    }
+  }
+  // handleMessageNotifications(){
+  //   if(this.messageNotificationSubscription)
+  //   {
+  //     this.messageNotificationSubscription.unsubscribe();
+  //   }
+  //   this.messageNotificationSubscription = this._conversationsService.getMessageNotifications().subscribe( (messageNotification:MessageNotification)=>{
+  //     const message:ChatMessage = messageNotification.message;
+  //     console.log({currentContact:this.contact});
+  //     console.log({socketId:messageNotification.id});
+  //     if(this.contact.socketId === messageNotification.id){
+  //       console.log('equals');
+  //       this.messages.push(message);
+  //     }
+  //   }, err=>{
+  //     console.error(err)
+  //   })
+  // }
+  handleMessageNotifications(){
+    if(this.messageNotificationSubscription)
+    {
+      this.messageNotificationSubscription.unsubscribe();
+    }
+    this.messageNotificationSubscription = this._conversationsService.getMessageNotifications().subscribe( (messageNotification:MessageNotification)=>{
+      const message:ChatMessage = messageNotification.message;
+      console.log({currentContact:this.contact});
+      console.log({socketId:messageNotification.id});
+      if(this.contact.socketId === messageNotification.id){
+        console.warn('equals');
+        this.messages.push(message);
+      }
+    }, err=>{
+      console.error(err)
     })
+  }
+  // handleContactSelected() {
+  //   if(this.contactSelectedSubscription){
+  //     this.contactSelectedSubscription.unsubscribe();
+  //   }
+  //   this.contactSelectedSubscription = this._contactSelectedService.currentContact.subscribe(item => {
+  //     this.contact = item;
+  //     if(this.contact.uid.length > 0 && this.contact.socketId.length > 0){
+  //       this.getCurrentConversations();
+  //       this.handleMessageNotifications();
+  //     }
+  //   })
+  // }
+  handleContactSelected() {
+    this._contactSelectedService.contactSelected.subscribe( (contact:ContactInfo)=>{
+      this.contact = contact;
+      console.log('next from chat section: ',this.contact);
+      this.getCurrentConversations();
+      this.handleMessageNotifications();
+    },error=>{
+      console.error(error);
+    })
+
   }
   handleSelection(event: any) {
     this.messageToSend += event.char;
   }
   handleSubmit(form: NgForm) {
-    if (this.messageToSend.length && this.contact._id) {
-      const message: ChatMessage = new ChatMessage(this.messageToSend, new Date(), 0);
+    if (this.messageToSend.length && this.contact.uid) {
+      const message: ChatMessage = new ChatMessage(this.messageToSend, new Date(), 1);
       this.messages.push(message);
-      const msgToSend: ChatMessage = new ChatMessage(this.messageToSend, new Date(), 1);
+      const msgToSend: ChatMessage = new ChatMessage(this.messageToSend, new Date(), 0);
 
       //for the receiver itll be type 1
       this._conversationsService.sendMessage(msgToSend, this.contact);
@@ -89,22 +157,22 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
     }
 
   }
-  handleNewMessages() {
-    this._conversationsService.receiveNewMessages(this.contact).subscribe(
-      (data: any) => {
-        const senderId: string = data.socketId;
-        const message: ChatMessage = data.msg;
-        this.messages.push(message);
-      }
-    )
-  }
+  // handleNewMessages() {
+  //   this._conversationsService.receiveNewMessages(this.contact).subscribe(
+  //     (data: any) => {
+  //       const senderId: string = data.socketId;
+  //       const message: ChatMessage = data.msg;
+  //       this.messages.push(message);
+  //     }
+  //   )
+  // }
   scrollToTheEnd() {
     this.messageSection.nativeElement.scrollTop = this.messageSection.nativeElement.scrollHeight;
   }
 
   makeAVideoCall() {
     const callOptions = new CallOptions(true, true);
-    const streamInfo = new StreamInfo(this.contact._id, this.contact, true, callOptions);
+    const streamInfo = new StreamInfo(this.contact.uid, this.contact, true, callOptions);
     this._peer.setStreamSettings(streamInfo)
     this._router.navigate(["call"]);
   }
@@ -113,7 +181,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, DoCheck {
   //se puede saber cual es el contacto por el contact selected
   makeACall(){
     const callOptions = new CallOptions(true, false);
-    const streamInfo = new StreamInfo(this.contact._id, this.contact, true, callOptions);
+    const streamInfo = new StreamInfo(this.contact.uid, this.contact, true, callOptions);
     this._peer.setStreamSettings(streamInfo)
     this._router.navigate(["call"]);
   }

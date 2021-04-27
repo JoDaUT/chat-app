@@ -7,6 +7,8 @@ import ContactInbox from '../../models/ContactInbox';
 import { Observable } from 'rxjs';
 import { SocketService } from 'src/app/services/socket-service/socket.service';
 import { ActivatedRoute } from '@angular/router';
+import { MessageNotification } from 'src/app/models/MessageNotification';
+import { ContactSelectedService } from '../../services/contact-selected-service/contact-selected.service';
 
 
 
@@ -19,9 +21,10 @@ export class SidebarComponent implements OnInit {
   public badgeList = {};
 
   @Input() public contactsInfo: Array<ContactInfo>;
-  @Output() public contactSelected = new EventEmitter<ContactInfo>();
+  //@Output() public contactSelected = new EventEmitter<ContactInfo>();
   stat: number;
   constructor(private _conversationsService: ConversationsService,
+              private _contactSelectedService:ContactSelectedService,
               private _socket: SocketService,
               private activatedRoute: ActivatedRoute) {
     this.contactsInfo = new Array<ContactInfo>();
@@ -81,8 +84,13 @@ export class SidebarComponent implements OnInit {
     },
       err => console.error('load contacts error: ', err))
   }
-  notifyContactSelected(contact: ContactInfo) {
-    this.contactSelected.emit(contact);
+  // notifyContactSelected(contact: ContactInfo) {
+  //   this.contactSelected.emit(contact);
+  //   this.resetBadge(contact.socketId);
+  // }
+  handleContactSelected(contact:ContactInfo){
+    console.log('handle contact selected');
+    this._contactSelectedService.contactSelected.next(contact);
     this.resetBadge(contact.socketId);
   }
   resetBadge(id:string){
@@ -90,7 +98,8 @@ export class SidebarComponent implements OnInit {
   }
   handleMessageNotification() {
     this._conversationsService.getMessageNotifications().subscribe(
-      (id: string) => {
+      (messageNotification:MessageNotification)=>{
+        const id = messageNotification.id;
         if (this.badgeList) {
           this.badgeList[id]++;
         }

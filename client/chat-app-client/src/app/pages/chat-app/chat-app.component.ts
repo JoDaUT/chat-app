@@ -21,7 +21,7 @@ export class ChatAppComponent implements OnInit {
   ngOnInit(){
 
   }
-  receiveContact(contact:ContactInfo){
-    this._contactSelectedService.updateContactSelected(contact);
-  }
+  // receiveContact(contact:ContactInfo){
+  //   this._contactSelectedService.updateContactSelected(contact);
+  // }
 }
