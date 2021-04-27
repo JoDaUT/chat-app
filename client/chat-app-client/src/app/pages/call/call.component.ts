@@ -39,23 +39,26 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
     this.stopwatch = new Stopwatch();
     
   }
-  ngOnDestroy(): void {
-    this._callService.closeCall(this.contact.uid);
-    const videos = document.querySelectorAll('.video-container video');
-    videos.forEach( (value:HTMLVideoElement)=>{
-      this.stopStreamedVideo(value);
-    })
-    if(this.getMyUserSubscription) this.getMyUserSubscription.unsubscribe();
-    if(this.contactSelectedSubscription) this.contactSelectedSubscription.unsubscribe();
-    if(this.listenCallAnswerSubscription) this.listenCallAnswerSubscription.unsubscribe();
-    if(this.endCallSignalSubscription) this.endCallSignalSubscription.unsubscribe();
+  ngOnInit(): void {
+    
+    this.streamInfo = this._callService.getStreamSettings();
+    console.log('stream info: ',this.streamInfo);
+    const {callOptions} =  this.streamInfo;
+    if(callOptions.video){
+      this.videoOptions = {width: 200, height: 200};
+    }
+    else{
+      this.videoOptions = {width: 0, height: 0};
+    }
+    this.firebaseUser = this._auth.getUser();
   }
   ngAfterViewInit(): void {
     this._socket.emit('req get my user', undefined);
     this.getMyUserSubscription = this._socket.listen('res get my user').subscribe( myUser=>{
       const {socketId} = myUser;
       this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
-      this.handleContactSelected();
+      //this.handleContactSelected();
+      this.contact = this.streamInfo.contact;
       if(this.streamInfo.sender){
         this.makeACall();
         this.handleCallAnswer();
@@ -67,24 +70,18 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
     })
   }
 
-  ngOnInit(): void {
-    
-    this.streamInfo = this._callService.getStreamSettings();
-    const {callOptions} =  this.streamInfo;
-    if(callOptions.video){
-      this.videoOptions = {width: 200, height: 200};
-    }
-    else{
-      this.videoOptions = {width: 0, height: 0};
-    }
-    this.firebaseUser = this._auth.getUser();
+  ngOnDestroy(): void {
+    this._callService.closeCall(this.contact.uid);
+    const videos = document.querySelectorAll('.video-container video');
+    videos.forEach( (value:HTMLVideoElement)=>{
+      this.stopStreamedVideo(value);
+    })
+    if(this.getMyUserSubscription) this.getMyUserSubscription.unsubscribe();
+    if(this.contactSelectedSubscription) this.contactSelectedSubscription.unsubscribe();
+    if(this.listenCallAnswerSubscription) this.listenCallAnswerSubscription.unsubscribe();
+    if(this.endCallSignalSubscription) this.endCallSignalSubscription.unsubscribe();
   }
 
-  // handleContactSelected() {
-  //   this.contactSelectedSubscription = this._contactSelectedService.currentContact.subscribe(item => {
-  //     this.contact = item;
-  //   })
-  // }
   handleContactSelected() {
     this.contactSelectedSubscription = this._contactSelectedService.contactSelected.subscribe(item => {
       this.contact = item;

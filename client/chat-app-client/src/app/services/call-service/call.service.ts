@@ -27,23 +27,13 @@ export class CallService {
     this.createPeer();
   }
   createPeer() {
-    this._peer = new Peer(this.userCard.uid);
+    // this._peer = new Peer(this.userCard.uid);
+    this._peer = new Peer(this.userCard.socketId);
     this._peer.on('open', (id) => {
       this.id = id;
     })
   }
-  sendCallRequest(){
-
-  }
-  listenCallRequest(){
-
-  }
-  sendCallAnswer(){
-
-  }
-  listenCallAnswer(){
-    
-  }
+  
   setStreamSettings(streamInfo:StreamInfo) {
     this._streamInfo = streamInfo;
   }

@@ -21,7 +21,6 @@ export class SidebarComponent implements OnInit {
   public badgeList = {};
 
   @Input() public contactsInfo: Array<ContactInfo>;
-  //@Output() public contactSelected = new EventEmitter<ContactInfo>();
   stat: number;
   constructor(private _conversationsService: ConversationsService,
               private _contactSelectedService:ContactSelectedService,
@@ -84,10 +83,6 @@ export class SidebarComponent implements OnInit {
     },
       err => console.error('load contacts error: ', err))
   }
-  // notifyContactSelected(contact: ContactInfo) {
-  //   this.contactSelected.emit(contact);
-  //   this.resetBadge(contact.socketId);
-  // }
   handleContactSelected(contact:ContactInfo){
     console.log('handle contact selected');
     this._contactSelectedService.contactSelected.next(contact);
