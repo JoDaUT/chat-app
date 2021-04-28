@@ -69,12 +69,10 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, OnDestroy
 
   async getCurrentConversations(){
     const contactUid = this.contact.uid;
-    console.log('get data from: ', this.contact);
     const request = await this._conversationsService.getConversation(contactUid)
     if(request)
     {
       request.subscribe( (conversation:ChatMessage[])=>{
-        console.log(conversation);
         this.messages = conversation;
       },
       error=>console.error(error))
@@ -87,8 +85,6 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, OnDestroy
     }
     this.messageNotificationSubscription = this._conversationsService.getMessageNotifications().subscribe( (messageNotification:MessageNotification)=>{
       const message:ChatMessage = messageNotification.message;
-      console.log({currentContact:this.contact});
-      console.log({socketId:messageNotification.id});
       if(this.contact.socketId === messageNotification.id){
         console.warn('equals');
         this.messages.push(message);
@@ -101,12 +97,10 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, OnDestroy
     const observer = {
       next: (contact:ContactInfo)=>{
         this.contact = contact;
-        console.log('next from chat section: ',this.contact);
         this.getCurrentConversations();
         this.handleMessageNotifications();
       },
-      error: (error)=>console.error(error),
-      complete: ()=>console.log('subcription finalized')
+      error: (error)=>console.error(error)
     }
     this.contactSelectedSubscription = this._contactSelectedService.contactSelected.subscribe(observer)
 

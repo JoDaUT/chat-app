@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import ContactInfo from 'src/app/models/ContactInfo';
-import { ContactSelectedService } from 'src/app/services/contact-selected-service/contact-selected.service';
 
 @Component({
   selector: 'app-chat-app',

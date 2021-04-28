@@ -41,7 +41,7 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
   }
   ngOnInit(): void {
     this.streamInfo = this._callService.getStreamSettings();
-    console.log('stream info: ',this.streamInfo);
+    
     const {callOptions} =  this.streamInfo;
     if(callOptions.video){
       this.videoOptions = {width: 200, height: 200};
@@ -57,7 +57,6 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
       const {socketId} = myUser;
       this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
       this.contact = this.streamInfo.contact;
-      console.log({contact:this.contact});
       if(this.streamInfo.sender){
         this.makeACall();
         this.handleCallAnswer();
@@ -89,7 +88,6 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
   initLocalStream() {
 
     const { sender, callOptions } = this.streamInfo;
-    console.log('from init local stream: ',this.streamInfo);
     const videoContainer:HTMLDivElement = this.videoContainer.nativeElement;
  
     navigator.mediaDevices.getUserMedia({ video: callOptions.video, audio: callOptions.audio }).then((stream:MediaStream) => {
@@ -102,11 +100,9 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
         this.addAudio(this.stream, videoContainer, {muted:true});
       }
       if (sender) {
-        console.log('call to:',this.contact.uid);
         this._callService.sendStream(this.contact.uid, stream);
 
         this._callService.receiveStream(this.contact.uid).then((remoteStream:MediaStream) => {
-          console.log('remote stream: ', remoteStream);
           this.startTimer();
           if(this.streamInfo.callOptions.video){
             this.addVideo(remoteStream,videoContainer,{ muted: false });
@@ -117,11 +113,8 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
         }).catch(err => console.error(err));
       }
       else {
-        console.log('before send stream to:',this.contact.uid);
         this._callService.listenStreamCall(this.contact.uid, stream).then((res) => {
-          console.log('stream sended');
           this._callService.receiveStream(this.contact.uid).then((remoteStream:MediaStream) => {
-            console.log('remote stream from receiver: ',remoteStream);
             this.startTimer();
             if(this.streamInfo.callOptions.video){
               this.addVideo(remoteStream, videoContainer, { muted: false });
@@ -200,7 +193,6 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
   }
   makeACall() {
     const peerId = this._callService.id;
-    console.log({peerId});
     const senderInfo = this.userCard;
     const receiverId = this.contact.socketId;
     const {callOptions} = this._callService.getStreamSettings();
@@ -208,7 +200,6 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
   }
   handleCallAnswer(){
     this.listenCallAnswerSubscription = this._socket.listen('listen call answer').subscribe((callAllowed:boolean)=>{
-      console.log('call answer');
       if (callAllowed) {
         this.initCall();
       }

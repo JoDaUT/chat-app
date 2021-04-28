@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit} from '@angular/core';
 import { NgForm } from '@angular/forms';
 import ContactInfo from 'src/app/models/ContactInfo';
 import { ConversationsService } from 'src/app/services/conversations-service/conversations.service';
@@ -6,7 +6,6 @@ import { SocketService } from 'src/app/services/socket-service/socket.service';
 import { ActivatedRoute } from '@angular/router';
 import { MessageNotification } from 'src/app/models/MessageNotification';
 import { ContactSelectedService } from '../../services/contact-selected-service/contact-selected.service';
-
 
 
 @Component({
@@ -40,7 +39,6 @@ export class SidebarComponent implements OnInit {
   }
 
   onSubmit(form: NgForm): void {
-    console.log('search form send');
   }
   handleContactDisconnection() {
     this._socket.listen('user disconnect').subscribe((user: any) => {
@@ -81,7 +79,6 @@ export class SidebarComponent implements OnInit {
       err => console.error('load contacts error: ', err))
   }
   handleContactSelected(contact:ContactInfo){
-    console.log('handle contact selected');
     this._contactSelectedService.contactSelected.next(contact);
     this.resetBadge(contact.socketId);
   }

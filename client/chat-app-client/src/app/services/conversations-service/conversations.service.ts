@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { ChatMessage } from '../../models/ChatMessage';
-import ContactInbox from '../../models/ContactInbox';
+// import ContactInbox from '../../models/ContactInbox';
 import ContactInfo from '../../models/ContactInfo';
 import { environment } from 'src/environments/environment';
 
@@ -20,7 +20,7 @@ export class ConversationsService {
   private messagesSource: BehaviorSubject<Array<ChatMessage>>;
   public currentMessages: Observable<Array<ChatMessage>>;
 
-  public inbox: Array<ContactInbox>;
+  // public inbox: Array<ContactInbox>;
   public contactsInfo: ContactInfo[];
   public api: { url: string };
 
@@ -34,13 +34,11 @@ export class ConversationsService {
     this.messagesSource = new BehaviorSubject<Array<ChatMessage>>(new Array<ChatMessage>());
     this.currentMessages = this.messagesSource.asObservable();
 
-    this.inbox = new Array<ContactInbox>();
+    // this.inbox = new Array<ContactInbox>();
     this.messages = new Array<ChatMessage>();
     this.contactsInfo = new Array<ContactInfo>();
   }
   sendMessage(message: ChatMessage, receiver: ContactInfo) {
-    console.log({sender:this._authService.getUser()});
-    console.log({receiver});
     this._socket.emitTo('emit private message', receiver.socketId, message);
   }
   getNewMessagesFromAPI() {
@@ -77,7 +75,6 @@ export class ConversationsService {
     try{
       const idToken = await currentUser.getIdToken(/* forceRefresh */ true)
       if(idToken){
-        console.log({uid: contactUid});
         const httpOptions = {
           headers: new HttpHeaders({
             'token-access': idToken
