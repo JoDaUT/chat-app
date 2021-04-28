@@ -42,7 +42,7 @@ export class AnswerCallModalComponent implements OnInit {
     const receiverId = this.entryCall.socketId;
     this._socket.emit('send call answer', {callAllowed, receiverId});
     const options = new CallOptions(audio, video);
-    const streamInfo = new StreamInfo(this.entryCall.socketId, this.entryCall, false, options);
+    const streamInfo = new StreamInfo(this.entryCall.uid, this.entryCall, false, options);
     // const streamInfo = new StreamInfo(this.entryCall.uid, this.entryCall, false, options);
     this._peer.setStreamSettings(streamInfo);
     this._router.navigate(['call']);
@@ -53,9 +53,10 @@ export class AnswerCallModalComponent implements OnInit {
     const video = false;
     const callAllowed = true;
     const receiverId = this.entryCall.socketId;
+    console.log('send call answer: ',{callAllowed, receiverId});
     this._socket.emit('send call answer', {callAllowed, receiverId});
     const callOptions = new CallOptions(audio, video);
-    const streamInfo = new StreamInfo(this.entryCall.socketId, this.entryCall, false, callOptions);
+    const streamInfo = new StreamInfo(this.entryCall.uid, this.entryCall, false, callOptions);
     // const streamInfo = new StreamInfo(this.entryCall.uid, this.entryCall, false, callOptions);
     this._peer.setStreamSettings(streamInfo);
     this._router.navigate(['call']);

@@ -28,9 +28,10 @@ export class CallService {
   }
   createPeer() {
     // this._peer = new Peer(this.userCard.uid);
-    this._peer = new Peer(this.userCard.socketId);
+    this._peer = new Peer(this.userCard.uid);
     this._peer.on('open', (id) => {
       this.id = id;
+      console.log('peer id is: ',this.id);
     })
   }
   
@@ -46,6 +47,7 @@ export class CallService {
   receiveStream(id: string):Promise<any> {
     return new Promise( (resolve)=>{
       this._calls[id].on('stream', (remoteStream)=>{
+        console.log('remote stream from service: ');
         resolve(remoteStream);
       })
     })
@@ -53,6 +55,7 @@ export class CallService {
   listenStreamCall(id: string, stream: any) {
     return new Promise( (resolve)=>{
       this._peer.on('call', (conn) => {
+        console.log('call peer');
         this._calls[id] = conn;
         this._calls[id].answer(stream);
         resolve(true);

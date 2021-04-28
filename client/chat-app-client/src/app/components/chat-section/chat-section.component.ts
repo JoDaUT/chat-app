@@ -144,7 +144,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, OnDestroy
   //se puede saber cual es el contacto por el contact selected
   makeACall(){
     const callOptions = new CallOptions(true, false);
-    const streamInfo = new StreamInfo(this.contact.socketId, this.contact, true, callOptions);
+    const streamInfo = new StreamInfo(this.contact.uid, this.contact, true, callOptions);
     // const streamInfo = new StreamInfo(this.contact.uid, this.contact, true, callOptions);
     this._peer.setStreamSettings(streamInfo)
     this._router.navigate(["call"]);
