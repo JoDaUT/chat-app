@@ -3,7 +3,7 @@ import { CallService } from '../../services/call-service/call.service';
 import ContactInfo from '../../models/ContactInfo';
 import { Stopwatch } from 'src/app/helpers/Stopwatch';
 import { Router } from '@angular/router';
-import { StreamInfo, CallOptions } from '../../models/StreamInfo';
+import { StreamInfo} from '../../models/StreamInfo';
 import { SocketService } from '../../services/socket-service/socket.service';
 import { ContactSelectedService } from 'src/app/services/contact-selected-service/contact-selected.service';
 import { AuthService } from 'src/app/services/auth-service/auth.service';
@@ -40,7 +40,6 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
     
   }
   ngOnInit(): void {
-    
     this.streamInfo = this._callService.getStreamSettings();
     console.log('stream info: ',this.streamInfo);
     const {callOptions} =  this.streamInfo;
@@ -57,7 +56,6 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
     this.getMyUserSubscription = this._socket.listen('res get my user').subscribe( myUser=>{
       const {socketId} = myUser;
       this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
-      //this.handleContactSelected();
       this.contact = this.streamInfo.contact;
       console.log({contact:this.contact});
       if(this.streamInfo.sender){
@@ -132,10 +130,7 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
               this.addAudio(remoteStream, videoContainer, { muted: false });
             }
           }).catch(err => console.error(err));
-
         })
-
-
       }
     }).catch(err => {
       console.error(err);
@@ -186,7 +181,6 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
       this.stream.getVideoTracks().forEach(function (track) { //in case... :)
           track.stop();
       });
-
     }
     this.stopTimer();
     if(sendStatus){
@@ -227,7 +221,6 @@ export class CallComponent implements OnInit,AfterViewInit,OnDestroy {
   public initCall() {
     this.initLocalStream();
     this.callStarted = true;
-    // this.startTimer();
     this.endCallSignalSubscription = this._socket.listen('end call signal').subscribe( (socketId:string)=>{
       if(this.contact.socketId === socketId){
         this.endCall(false);

@@ -6,17 +6,14 @@ import ContactInfo from 'src/app/models/ContactInfo';
 import { AuthService } from 'src/app/services/auth-service/auth.service';
 import { ConversationsService } from 'src/app/services/conversations-service/conversations.service';
 import { ContactSelectedService } from '../../services/contact-selected-service/contact-selected.service'
-// import * as Peer from 'peerjs';
 import firebase from 'firebase/app';
 import { SocketService } from 'src/app/services/socket-service/socket.service';
 import { CallService } from '../../services/call-service/call.service';
 import { Router } from '@angular/router';
-// import { Subscription } from 'rxjs';
 import { CallOptions, StreamInfo } from '../../models/StreamInfo';
 import { MessageNotification } from '../../models/MessageNotification';
 import { Subscription } from 'rxjs';
-declare const Peer: any;
-declare const $: any;
+
 @Component({
   selector: 'chat-section',
   templateUrl: './chat-section.component.html',
@@ -145,7 +142,6 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, OnDestroy
   makeACall(){
     const callOptions = new CallOptions(true, false);
     const streamInfo = new StreamInfo(this.contact.uid, this.contact, true, callOptions);
-    // const streamInfo = new StreamInfo(this.contact.uid, this.contact, true, callOptions);
     this._peer.setStreamSettings(streamInfo)
     this._router.navigate(["call"]);
   }

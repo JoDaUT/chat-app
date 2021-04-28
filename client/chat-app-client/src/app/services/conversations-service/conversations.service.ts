@@ -3,8 +3,6 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { ChatMessage } from '../../models/ChatMessage';
 import ContactInbox from '../../models/ContactInbox';
 import ContactInfo from '../../models/ContactInfo';
-import { ContactSelectedService } from '../contact-selected-service/contact-selected.service';
-
 import { environment } from 'src/environments/environment';
 
 import { HttpClient } from '@angular/common/http';

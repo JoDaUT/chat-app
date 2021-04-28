@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-//import * as $ from 'jquery';
 declare const $: any;
 import ContactInfo from 'src/app/models/ContactInfo';
 import { CallService } from '../../services/call-service/call.service';
 import { SocketService } from '../../services/socket-service/socket.service';
 import { StreamInfo, CallOptions } from '../../models/StreamInfo';
-declare const Peer: any;
+
 @Component({
   selector: 'answer-call-modal',
   templateUrl: './answer-call-modal.component.html',
@@ -43,7 +42,6 @@ export class AnswerCallModalComponent implements OnInit {
     this._socket.emit('send call answer', {callAllowed, receiverId});
     const options = new CallOptions(audio, video);
     const streamInfo = new StreamInfo(this.entryCall.uid, this.entryCall, false, options);
-    // const streamInfo = new StreamInfo(this.entryCall.uid, this.entryCall, false, options);
     this._peer.setStreamSettings(streamInfo);
     this._router.navigate(['call']);
   }
@@ -57,7 +55,6 @@ export class AnswerCallModalComponent implements OnInit {
     this._socket.emit('send call answer', {callAllowed, receiverId});
     const callOptions = new CallOptions(audio, video);
     const streamInfo = new StreamInfo(this.entryCall.uid, this.entryCall, false, callOptions);
-    // const streamInfo = new StreamInfo(this.entryCall.uid, this.entryCall, false, callOptions);
     this._peer.setStreamSettings(streamInfo);
     this._router.navigate(['call']);
   }

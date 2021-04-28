@@ -27,7 +27,6 @@ export class CallService {
     this.createPeer();
   }
   createPeer() {
-    // this._peer = new Peer(this.userCard.uid);
     this._peer = new Peer(this.userCard.uid);
     this._peer.on('open', (id) => {
       this.id = id;
@@ -65,7 +64,6 @@ export class CallService {
   closeCall(id:string){
     if(this._calls[id]){
       this._calls[id].close();
-      //delete this._calls[id];
     }
   }
 }
