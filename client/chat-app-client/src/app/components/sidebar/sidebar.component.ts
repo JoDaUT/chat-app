@@ -69,11 +69,9 @@ export class SidebarComponent implements OnInit {
   }
   loadContacts() {
     this._conversationsService.getContacts(this.stat).subscribe((contacts) => {
-     
       for (let item of contacts) {
         const contactInfo = item.data;
         this.contactsInfo.push(contactInfo);
-        console.log('contacts info: ', this.contactsInfo);
         this.badgeList[contactInfo.socketId] = 0;
       }
     },

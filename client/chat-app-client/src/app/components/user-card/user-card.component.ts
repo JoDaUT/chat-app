@@ -22,9 +22,10 @@ export class UserCardComponent implements OnInit, DoCheck {
   }
   ngDoCheck() {
     this.parsedTitle = this.parseStringByLength(this.title, 28);
-      if(this.title){
-        this.parsedSubtitle = 'online'
-      }
+    this.parsedSubtitle = this.parseStringByLength(this.subtitle, 23);
+    if(this.title){
+      this.subtitle = this.status;
+    }
 
     
   }

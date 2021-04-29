@@ -2,11 +2,13 @@
     <mat-card-header>
         <div mat-card-avatar *ngIf="avatar">
             <img mat-card-avatar src="{{avatar}}"  >
-            <div *ngIf="status==='online' || status==='offline'" class="badge"  [ngClass]="{'online': status==='online', 'offline': status==='offline'}"></div>
+            <!-- <div *ngIf="status==='online' || status==='offline'" class="badge"  [ngClass]="{'online': status==='online', 'offline': status==='offline'}"></div> -->
+            <div *ngIf="status==='online' || status==='offline' || status === 'typing...'" class="badge"  [ngClass]="{'online': status==='online' || status==='typing...', 'offline': status==='offline'}"></div>
         </div>
         <div mat-card-avatar *ngIf="!avatar">
             <img mat-card-avatar src="assets/icons/default-avatar.svg"  >
-            <div *ngIf="status==='online' || status==='offline'" class="badge"  [ngClass]="{'online': status==='online', 'offline': status==='offline'}"></div>
+            <!-- <div *ngIf="status==='online' || status==='offline'" class="badge"  [ngClass]="{'online': status==='online', 'offline': status==='offline'}"></div> -->
+            <div *ngIf="status==='online' || status==='offline' || status === 'typing...'" class="badge"  [ngClass]="{'online': status==='online' || status==='typing...', 'offline': status==='offline'}"></div>
         </div>
         <mat-card-title [matBadge]="badgeContent" matBadgeSize="small" [matBadgeHidden]="badgeContent<=0">{{parsedTitle}}</mat-card-title>
         <mat-card-subtitle>{{parsedSubtitle}}</mat-card-subtitle>

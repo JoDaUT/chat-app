@@ -26,14 +26,15 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, OnDestroy
 
   public toggled: boolean = false;
   public messageToSend: string;
+  public contactStatus:string;
 
   public firebaseUser: firebase.User;
   public userCard: ContactInfo;
-  public messageNotificationSubscription:Subscription
+  public messageNotificationSubscription: Subscription
   public inboxMessages: Array<ContactInbox>;
   @ViewChild('messageSection') messageSection: ElementRef;
   contactSelectedSubscription: Subscription;
-  
+
   constructor(private _contactSelectedService: ContactSelectedService,
     private _conversationsService: ConversationsService,
     private _auth: AuthService,
@@ -47,7 +48,7 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, OnDestroy
 
     this.inboxMessages = new Array<ContactInbox>();
 
-    this.contact = new ContactInfo('','','','','assets/icons/default-avatar.svg','');
+    this.contact = new ContactInfo('', '', '', '', 'assets/icons/default-avatar.svg', '');
   }
   ngOnDestroy(): void {
     this.contactSelectedSubscription.unsubscribe();
@@ -56,8 +57,8 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, OnDestroy
   ngOnInit(): void {
     this.firebaseUser = this._auth.getUser();
     this._socket.emit('req get my user', undefined);
-    this._socket.listen('res get my user').subscribe( myUser=>{
-      const {socketId} = myUser;
+    this._socket.listen('res get my user').subscribe(myUser => {
+      const { socketId } = myUser;
       this.userCard = new ContactInfo(this.firebaseUser.uid, this.firebaseUser.displayName, this.firebaseUser.email, 'online', this.firebaseUser.photoURL, socketId);
     })
 
@@ -67,43 +68,59 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, OnDestroy
     this.scrollToTheEnd();
   }
 
-  async getCurrentConversations(){
+  async getCurrentConversations() {
     const contactUid = this.contact.uid;
     const request = await this._conversationsService.getConversation(contactUid)
-    if(request)
-    {
-      request.subscribe( (conversation:ChatMessage[])=>{
+    if (request) {
+      request.subscribe((conversation: ChatMessage[]) => {
         this.messages = conversation;
       },
-      error=>console.error(error))
+        error => console.error(error))
     }
   }
-  handleMessageNotifications(){
-    if(this.messageNotificationSubscription)
-    {
+  handleMessageNotifications() {
+    if (this.messageNotificationSubscription) {
       this.messageNotificationSubscription.unsubscribe();
     }
-    this.messageNotificationSubscription = this._conversationsService.getMessageNotifications().subscribe( (messageNotification:MessageNotification)=>{
-      const message:ChatMessage = messageNotification.message;
-      if(this.contact.socketId === messageNotification.id){
+    this.messageNotificationSubscription = this._conversationsService.getMessageNotifications().subscribe((messageNotification: MessageNotification) => {
+      const message: ChatMessage = messageNotification.message;
+      if (this.contact.socketId === messageNotification.id) {
         console.warn('equals');
         this.messages.push(message);
       }
-    }, err=>{
+    }, err => {
       console.error(err)
     })
   }
   handleContactSelected() {
     const observer = {
-      next: (contact:ContactInfo)=>{
+      next: (contact: ContactInfo) => {
         this.contact = contact;
         this.getCurrentConversations();
         this.handleMessageNotifications();
+        this.handleFocus();
+        this.handleBlur();
       },
-      error: (error)=>console.error(error)
+      error: (error) => console.error(error)
     }
     this.contactSelectedSubscription = this._contactSelectedService.contactSelected.subscribe(observer)
 
+  }
+  handleBlur() {
+    this._socket.listen('private stop typing').subscribe(
+      {
+        next: res => {
+          this.contact.status = 'online'
+        }
+    })
+  }
+  handleFocus() {
+    this._socket.listen('private is typing').subscribe(
+      {
+        next: res => {
+          this.contact.status = 'typing...'
+        }
+      })
   }
   handleSelection(event: any) {
     this.messageToSend += event.char;
@@ -133,11 +150,16 @@ export class ChatSectionComponent implements OnInit, AfterViewChecked, OnDestroy
   }
   //estos tres
   //se puede saber cual es el contacto por el contact selected
-  makeACall(){
+  makeACall() {
     const callOptions = new CallOptions(true, false);
     const streamInfo = new StreamInfo(this.contact.uid, this.contact, true, callOptions);
     this._peer.setStreamSettings(streamInfo)
     this._router.navigate(["call"]);
   }
-
+  focusTextArea() {
+    this._socket.emit('private focus', this.contact.socketId);
+  }
+  blurTextArea() {
+    this._socket.emit('private blur', this.contact.socketId);
+  }
 }

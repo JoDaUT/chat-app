@@ -30,7 +30,8 @@
             </button>
             <div class="item2">
                 <textarea name="message" type="text" placeholder="Escribe un mensaje" required class="new-message-textarea" 
-                [(ngModel)]="messageToSend" (keyup.enter)="handleSubmit(sendMessageForm)"></textarea>
+                [(ngModel)]="messageToSend" (keyup.enter)="handleSubmit(sendMessageForm)"
+                (focus)="focusTextArea()" (blur)="blurTextArea()"></textarea>
             </div>
             <div class="item3">
                 <button mat-icon-button class="send-button" (click)="handleSubmit(sendMessageForm)">

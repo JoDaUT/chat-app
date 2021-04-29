@@ -21,7 +21,6 @@ export class SocketService{
 
     const user = this._authService.getUser();
     const userFiltered: ContactInfo = new ContactInfo(user.uid, user.displayName, user.email, 'online', user.photoURL, undefined);
-    console.log({userFiltered});
     this.emit('user', userFiltered);
   }
   listen(eventName:string):Observable<any>{
