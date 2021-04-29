@@ -1,5 +1,7 @@
 import { Component, Input, OnInit} from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { map } from 'rxjs/operators';
+
 import ContactInfo from 'src/app/models/ContactInfo';
 import { ConversationsService } from 'src/app/services/conversations-service/conversations.service';
 import { SocketService } from 'src/app/services/socket-service/socket.service';
@@ -59,20 +61,19 @@ export class SidebarComponent implements OnInit {
     }
   }
   handleContactConnection() {
-    this._socket.listen('user connect').subscribe((user: any) => {
-      const socketId = user.socketId;
-      const contact = user.data;
-      this.contactsInfo.push(new ContactInfo(contact.uid, contact.displayName, contact.email, 'online', contact.photoURL, socketId));
-      this.badgeList[socketId] = 0;
+    this._socket.listen('user connect').subscribe((res: any) => {
+      const contactConnected:ContactInfo = res.data;
+      this.contactsInfo.push(contactConnected)
+      this.badgeList[contactConnected.socketId] = 0;
     })
   }
   loadContacts() {
-    this._conversationsService.getContacts(this.stat).subscribe((contacts: any[]) => {
+    this._conversationsService.getContacts(this.stat).subscribe((contacts) => {
+     
       for (let item of contacts) {
-        const socketId = item.socketId;
-        const contact = item.data;
-        const contactInfo: ContactInfo = new ContactInfo(contact.uid, contact.displayName, contact.email, 'online', contact.photoURL, socketId);
+        const contactInfo = item.data;
         this.contactsInfo.push(contactInfo);
+        console.log('contacts info: ', this.contactsInfo);
         this.badgeList[contactInfo.socketId] = 0;
       }
     },
