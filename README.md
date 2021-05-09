@@ -42,7 +42,7 @@ The other will receive a call notification with the caller information.
 In your screen you have to wait the contact answer.
 ![calling](https://user-images.githubusercontent.com/47344349/117558277-24165580-b039-11eb-8293-448bf48ab89d.png)
 
-The call can be denegated if the other don't want to answer and you going to receive a denegated call notification.
+The call can be rejected if the other don't want to answer and you are going to receive a denegated call notification.
 
 If your friend accept the call, in both screens the audio and/or video stream going to appear. Now, both can start to talk.
 ![videocall](https://user-images.githubusercontent.com/47344349/117558282-34c6cb80-b039-11eb-8d52-a90a179e4a7e.png)
