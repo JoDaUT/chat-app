@@ -28,7 +28,6 @@ class AuthController {
             res.status(403).send('user not defined');
         }
         chatService.addUser(user);
-        console.log('current users: ',chatService.getArrayOfAllUsers());
         res.status(200).send(user);      
     }
 }

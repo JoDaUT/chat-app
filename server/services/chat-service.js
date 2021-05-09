@@ -19,7 +19,7 @@ class ChatService{
         }   
     };
     removeUser(socketId){
-       return this.users.delete(socketId);
+        return this.users.delete(socketId);
     }
     updateUser(user){
         const result = this.removeUser(user.socketId);
