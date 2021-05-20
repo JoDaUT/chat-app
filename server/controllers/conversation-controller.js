@@ -21,7 +21,7 @@ class ConversationController {
     async getConversation(req = request, res = response) {
         const tokenAccess = req.header('token-access')
         try{
-            const uid = await authenticateUserByToken(tokenAccess)//.catch( err=>console.log(err))
+            const uid = await authenticateUserByToken(tokenAccess)
             if(uid){
                 const { contactUid } = req.params;
         
